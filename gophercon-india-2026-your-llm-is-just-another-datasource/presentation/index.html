@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Your LLM Is Just Another Datasource</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Inter is GoFr's sans (next/font/google in gofr-dev/website src/app/layout.jsx). -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      /* GoFr's display face: the website ships Lexend locally "so that we can use OpenType features",
+         and sets font-feature-settings "ss01" on font-display (gofr-dev/website tailwind.config.js). */
+      @font-face {
+        font-family: 'Lexend GoFr';
+        src: url('./brand/lexend.woff2') format('woff2');
+        font-weight: 100 900;
+        font-display: swap;
+      }
+
+      :root {
+        /* Tailwind palette values used by gofr.dev */
+        --slate-50: #f8fafc;
+        --slate-300: #cbd5e1;
+        --slate-400: #94a3b8;
+        --slate-500: #64748b;
+        --slate-900: #0f172a;
+        --sky-400: #38bdf8;
+        --indigo-200: #c7d2fe;
+
+        /* Same type scale as before, sized for a 1920x1080 stage */
+        --font-size-h1: 6rem;
+        --font-size-h2: 3.5rem;
+        --font-size-body: 1.8rem;
+        --font-size-detail: 1.2rem;
+      }
+      body {
+        font-family: 'Inter', sans-serif;
+        margin: 0;
+        overflow: hidden;
+        background-color: var(--slate-900);
+        color: #ffffff;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .font-display { font-family: 'Lexend GoFr', 'Inter', sans-serif; font-feature-settings: "ss01"; }
+      .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+      /* Hero h1: font-display, regular weight, tracking-tight (Hero.jsx) */
+      .h1-text { font-family: 'Lexend GoFr', sans-serif; font-feature-settings: "ss01"; font-size: var(--font-size-h1); font-weight: 400; line-height: 1.02; letter-spacing: -0.025em; text-wrap: balance; }
+      /* Section heading: font-display font-bold tracking-tight text-white */
+      .h2-text { font-family: 'Lexend GoFr', sans-serif; font-feature-settings: "ss01"; font-size: var(--font-size-h2); font-weight: 700; line-height: 1.1; letter-spacing: -0.025em; text-wrap: balance; }
+      /* Hero h2: text-slate-300 tracking-tight */
+      .body-text { font-size: var(--font-size-body); font-weight: 400; line-height: 1.35; letter-spacing: -0.025em; color: var(--slate-300); text-wrap: pretty; }
+      /* Eyebrow: font-display font-semibold uppercase tracking-wider text-slate-400 */
+      .eyebrow { font-family: 'Lexend GoFr', sans-serif; font-feature-settings: "ss01"; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--slate-400); }
+
+      /* The hero h1 gradient: from-indigo-200 via-sky-400 to-indigo-200, clipped to text */
+      .gofr-gradient {
+        background-image: linear-gradient(to right, var(--indigo-200), var(--sky-400), var(--indigo-200));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        -webkit-box-decoration-break: clone;
+        box-decoration-break: clone;
+      }
+
+      .bg-app-container {
+        position: fixed;
+        inset: 0;
+        background-color: var(--slate-900);
+        z-index: -1;
+        overflow: hidden;
+      }
+      /* GoFr's HeroBackground circuit, and the blur-cyan / blur-indigo glows from the hero */
+      .bg-circuit {
+        -webkit-mask-image: linear-gradient(to right, transparent, black 45%);
+        mask-image: linear-gradient(to right, transparent, black 45%);
+        position: absolute;
+        right: -6vw;
+        top: 50%;
+        height: 118vh;
+        transform: translateY(-50%);
+        opacity: 0.4;
+        pointer-events: none;
+      }
+      .bg-blur-cyan { position: absolute; left: -18vw; top: -30vh; width: 60vw; opacity: 0.35; pointer-events: none; }
+      .bg-blur-indigo { position: absolute; right: -14vw; bottom: -34vh; width: 55vw; opacity: 0.3; pointer-events: none; }
+
+      .scrollbar-hide::-webkit-scrollbar { display: none; }
+      .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+      /* Progressive reveal: every step fades up, nothing jumps */
+      .reveal { transition: opacity 450ms ease, transform 450ms ease, filter 450ms ease; }
+      .reveal-hidden { opacity: 0; transform: translateY(18px); filter: blur(4px); pointer-events: none; }
+
+      /* gofr.dev's hero logo drift (tailwind.config.js keyframes 'gentle-drift') */
+      @keyframes gentle-drift { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+      .animate-gentle-drift { animation: gentle-drift 4s ease-in-out infinite; }
+      @media (prefers-reduced-motion: reduce) { .animate-gentle-drift { animation-play-state: paused; } }
+
+      @media print {
+        @page { size: 1920px 1080px; margin: 0; }
+        body { overflow: visible; }
+        .print-page { page-break-after: always; break-after: page; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bg-app-container">
+      <img class="bg-blur-cyan" src="./brand/blur-cyan.png" alt="" aria-hidden="true">
+      <img class="bg-blur-indigo" src="./brand/blur-indigo.png" alt="" aria-hidden="true">
+      <img class="bg-circuit" src="./brand/hero-background.svg" alt="" aria-hidden="true">
+    </div>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
