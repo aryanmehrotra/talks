@@ -365,41 +365,9 @@ const SLIDES: SlideData[] = [
     ),
   },
 
-  // 7 ─ Boot
-  {
-    id: 7, layout: 'code', title: 'Boot', steps: 3, speaker: 'A',
-    speakerNotes: 'Start-up. Install the llama.cpp backend; it is cached after the first run. [next] Resolve both models. Any GGUF works: a Hugging Face reference or a path on disk. [next] Load each into its own Kronk instance. Only the very first run needs the network, to download. After that the laptop can stay offline.',
-    content: (step) => {
-      const focus = [range(1, 3), range(5, 7), range(9, 10)][step];
-      return (
-        <div className="h-full flex flex-col">
-          <Header kicker="2 · How it runs" title={<>Start-up is three calls. <Cyan>Only the first run touches the network.</Cyan></>} />
-          <Terminal title="kronk.go · bootstrapKronk (errors elided)" hideOutput fontSize={24}>
-            <Code focus={focus} code={`
-lib, _ := libs.New()
-lib.Download(ctx, klog)                          // llama.cpp backend, cached
-kronk.Init(kronk.WithLibPath(lib.LibsPath()))
-
-mdls, _ := models.New()
-cp, _ := mdls.Download(ctx, klog, chatSrc)       // HF ref or a local .gguf
-ep, _ := mdls.Download(ctx, klog, embedSrc)
-
-chat, _  := kronk.New(model.WithModelFiles(cp.ModelFiles), model.WithLog(klog))
-embed, _ := kronk.New(model.WithModelFiles(ep.ModelFiles), model.WithLog(klog))
-`} />
-          </Terminal>
-          <div className="mt-8 flex items-center justify-between rounded-2xl px-8 py-5 font-mono text-[1.25rem]" style={{ background: `${COLORS.slate800}99`, boxShadow: "0 0 0 1px rgba(203,213,225,0.10)" }}>
-            <span><span style={{ color: COLORS.sky400 }} className="font-bold">CHAT_MODEL</span>=unsloth/Qwen3-0.6B-Q8_0.gguf</span>
-            <span><span style={{ color: COLORS.sky400 }} className="font-bold">EMBED_MODEL</span>=ggml-org/embeddinggemma-300m-qat-Q8_0.gguf</span>
-          </div>
-        </div>
-      );
-    },
-  },
-
   // 8 ─ GoFr, minimal
   {
-    id: 8, layout: 'grid', title: 'GoFr in one slide', steps: 2, speaker: 'A',
+    id: 8, layout: 'grid', title: 'GoFr', steps: 2, speaker: 'A',
     speakerNotes: 'One slide on GoFr, because the rest of the talk leans on one idea from it. You register a datasource once. [next] From then on every call through it gets a span, metrics, a debug log line, and a place on the health endpoint. You do not write that code. Hold on to that, because an LLM is about to become one of these.',
     content: (step) => (
       <div className="h-full flex flex-col">
@@ -573,6 +541,99 @@ resp, err := c.LLM().Chat(c, []ai.Message{
           </Terminal>
           <Caption>Register a hosted provider tomorrow: <W>this handler does not change.</W></Caption>
         </Reveal>
+      </div>
+    ),
+  },
+
+  // 12a ─ Inside AddLLM (GoFr internals)
+  {
+    id: 26, layout: 'code', title: 'Inside AddLLM', steps: 3, speaker: 'A',
+    speakerNotes: 'What does AddLLM actually do? It ignores a nil model, and a typed-nil pointer too, so a failed constructor can never panic later. [next] The first model registers the two LLM metrics, once. Metrics are opt-in: a service with no model pays nothing. [next] Then the container keeps two things. The raw model, which the health endpoint calls, so a health check never creates a span or bumps request metrics. And a wrapped model, built once, which is what c.LLM() returns. Ask for a name that does not exist and you get ErrLLMNotConfigured, not a nil-pointer panic.',
+    content: (step) => (
+      <div className="h-full flex flex-col">
+        <Header kicker="3 · The idea" title={<>Register once. <Cyan>GoFr wraps it once.</Cyan></>} />
+        <div className="grid grid-cols-[1fr_1.15fr] gap-10 items-start">
+          <Terminal title="gofr · external_db.go (trimmed)" hideOutput fontSize={19}>
+            <Code focus={step === 0 ? [2, 3, 4] : step === 1 ? [5, 6, 7] : [8, 9]} code={`
+func (a *App) AddLLM(m ai.Model, opts ...LLMOption) {
+	if m == nil {
+		return // typed-nil pointers too
+	}
+	if !a.container.HasLLM() {
+		ai.RegisterMetrics(a.Metrics()) // once
+	}
+	a.instrumentDatasource(m)
+	a.container.SetLLM(m, o.name)
+}
+`} />
+          </Terminal>
+          <Reveal show={step >= 2}>
+            <Terminal title="gofr · container.go · SetLLM (trimmed)" hideOutput fontSize={19}>
+              <Code focus={[3, 4]} code={`
+func (c *Container) SetLLM(m ai.Model, name ...string) {
+	n := llmName(name)
+	c.llmModels[n] = m                 // raw: health checks
+	c.llms[n] = ai.NewLLM(m, ai.Deps{  // wrapped: c.LLM()
+		Metrics: c.metricsManager,
+		Tracer:  otel.GetTracerProvider().Tracer("gofr-llm"),
+		Logger:  c.Logger,
+	})
+}
+`} />
+            </Terminal>
+          </Reveal>
+        </div>
+        <Reveal show={step >= 2}>
+          <Caption><Mono className="text-white">c.LLM("typo")</Mono> returns <Mono className="text-white">ErrLLMNotConfigured</Mono>. <W>Not a nil-pointer panic.</W></Caption>
+        </Reveal>
+      </div>
+    ),
+  },
+
+  // 12b ─ The decorator (GoFr internals)
+  {
+    id: 27, layout: 'code', title: 'The decorator', steps: 2, speaker: 'A',
+    speakerNotes: 'This is the pattern the whole talk rests on. c.LLM() hands you a decorator: same interface as your model, one function in the middle. Every Chat goes through Instrument, which opens the llm.chat span, runs your model inside it, and records. [next] What it records: the span with provider, model and token counts; a request counter; a token histogram by token type; and one log line with the trace id. Debug on success, Error on failure. And it never records the prompt or the answer. Counts and labels only. For a talk about keeping data on the laptop, that matters: the observability does not leak either.',
+    content: (step) => (
+      <div className="h-full flex flex-col">
+        <Header kicker="3 · The idea" title={<>Every call goes through one decorator. <Cyan>It records counts, never content.</Cyan></>} />
+        <div className="grid grid-cols-[1fr_520px] gap-10 items-start">
+          <div>
+            <Terminal title="gofr · ai/llm.go + ai/instrument.go (trimmed)" hideOutput fontSize={20}>
+            <Code focus={step === 0 ? [1, 2, 3, 4] : [7, 8, 9, 10]} code={`
+// every c.LLM().Chat goes through here
+return l.call(ctx, opChat, func(ctx context.Context) (*Response, error) {
+	return l.model.Chat(ctx, messages, opts...) // your model
+})
+
+// Instrument
+ctx, span := tracerOf(info).Start(ctx, "llm."+info.Op)
+defer span.End()
+resp, err := fn(ctx)               // your model runs inside the span
+record(ctx, info, span, resp, err) // metrics · span attrs · log
+`} />
+            </Terminal>
+            <Reveal show={step >= 1}>
+              <Caption>Counts and labels only. <W>Your prompt and the answer are never recorded.</W></Caption>
+            </Reveal>
+          </div>
+          <Reveal show={step >= 1}>
+            <div className="space-y-4">
+              {[
+                ['span', 'llm.chat', 'provider · model · tokens'],
+                ['counter', 'app_llm_request_count', 'provider · model · op · status'],
+                ['histogram', 'app_llm_tokens_per_request', 'token_type · status'],
+                ['log', 'Debug ok · Error fail', 'with the request trace_id'],
+              ].map(([kind, name, labels]) => (
+                <Card key={kind} className="!py-5 !px-7">
+                  <Label>{kind}</Label>
+                  <div className="font-mono text-[1.3rem] text-white -mt-1">{name}</div>
+                  <div className="text-[1.15rem] mt-1" style={{ color: COLORS.slate400 }}>{labels}</div>
+                </Card>
+              ))}
+            </div>
+          </Reveal>
+        </div>
       </div>
     ),
   },

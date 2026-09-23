@@ -50,22 +50,57 @@ capability, with its own `llm.embed` span and metrics) shipped later, in GoFr v1
 
 ---
 
-## Also used
+## What this talk uses
 
-Kronk (llama.cpp in-process, from Ardan Labs):
-[https://github.com/ardanlabs/kronk](https://github.com/ardanlabs/kronk)
+Versions are the ones the agent pins in its `go.mod`, unless the row says otherwise.
 
-llama.cpp:
-[https://github.com/ggml-org/llama.cpp](https://github.com/ggml-org/llama.cpp)
+### The service
 
-SurrealDB:
-[https://surrealdb.com/docs](https://surrealdb.com/docs)
+| What | Version | Role |
+|------|---------|------|
+| [Go](https://go.dev) | 1.26.3 | the whole service |
+| [GoFr](https://github.com/gofr-dev/gofr) | v1.58.0 | HTTP, datasources, `ctx.LLM()`, tracing, metrics, health |
+| [GoFr SurrealDB datasource](https://github.com/gofr-dev/gofr/tree/development/pkg/gofr/datasource/surrealdb) | v0.3.4 | `app.AddSurrealDB`, `c.SurrealDB.Query` |
+| [Kronk](https://github.com/ardanlabs/kronk) (Ardan Labs) | v1.29.3 | loads llama.cpp and GGUF models in-process |
+| [llama.cpp](https://github.com/ggml-org/llama.cpp) | b10107 (Kronk v1.29.3's pinned default), Metal build on the demo laptop | inference for both models |
+| [SurrealDB](https://surrealdb.com/docs) | `surrealdb/surrealdb:latest`, in memory | vector store, cosine search |
+| [OpenTelemetry Go](https://github.com/open-telemetry/opentelemetry-go) | v1.44.0 | the hand-added `kronk.embed` / `kronk.generate` spans |
+
+### The models
+
+| Model | File | Size | Licence | Role |
+|-------|------|------|---------|------|
+| [Qwen3-0.6B](https://huggingface.co/Qwen/Qwen3-0.6B) | `unsloth/Qwen3-0.6B-Q8_0.gguf` | 639 MB | Apache-2.0 | chat |
+| [EmbeddingGemma-300M](https://huggingface.co/google/embeddinggemma-300m) (QAT) | `ggml-org/embeddinggemma-300m-qat-Q8_0.gguf` | 329 MB | Gemma Terms of Use | embeddings, 768 dimensions |
+
+### Observability (the live demo)
+
+From the agents repo's [`observability/`](https://github.com/aryanmehrotra/agents/tree/main/observability) folder:
+
+| What | Version | Port | Role |
+|------|---------|------|------|
+| [Jaeger](https://www.jaegertracing.io) all-in-one | 1.60 | 16686 UI, 4317 OTLP | traces |
+| [Prometheus](https://prometheus.io) | `latest` | 9090 | scrapes the agent's `:2132/metrics` |
+| [Grafana](https://grafana.com) | `latest` | 3000 | the `llm.json` dashboard |
+
+### The slides
+
+| What | Version | Role |
+|------|---------|------|
+| [React](https://react.dev) | 19.3.0 | slides as components |
+| [Vite](https://vite.dev) | 6.4.3 | dev server and build |
+| [TypeScript](https://www.typescriptlang.org) | 5.9.3 | type-checks the deck |
+| [Tailwind CSS](https://tailwindcss.com) | Play CDN | utility classes |
+| [Inter](https://rsms.me/inter/) | Google Fonts | body text (as on gofr.dev) |
+| [Lexend](https://www.lexend.com) | local woff2 from gofr.dev, `ss01` | headings (as on gofr.dev); SIL OFL 1.1, see `presentation/brand/lexend.txt` |
+| GoFr brand assets | from [gofr-dev/website](https://github.com/gofr-dev/website) | logo, hero background circuit, glow images, code-window style |
 
 ---
 
 ## Slides
 
-The deck is in `presentation/`, built the same way as the Container Days London deck.
+The deck is in `presentation/`. Its design follows gofr.dev: fonts, colours, code theme and assets
+all come from [gofr-dev/website](https://github.com/gofr-dev/website).
 
 ```bash
 cd presentation
