@@ -306,7 +306,7 @@ const SLIDES: SlideData[] = [
   // 3 ─ The myth
   {
     id: 3, layout: 'centered', title: 'The myth', steps: 3, speaker: 'A',
-    speakerNotes: 'Raise your hand if you have been told this. You want to do anything with LLMs, go learn Python. [next] I do not think that is true. [next] And I would rather show it than argue about it. So, straight to a demo.',
+    speakerNotes: 'Raise your hand if you have been told this. You want to do anything with LLMs, go learn Python. [next] I do not think that is true. [next] And I would rather show it than argue about it. So first, sixty seconds of it working.',
     content: (step) => (
       <div className="h-full flex flex-col justify-center">
         <p className="font-display font-semibold text-[3.2rem]" style={{ color: COLORS.slate400 }}>“Want LLMs in your service?</p>
@@ -320,69 +320,28 @@ const SLIDES: SlideData[] = [
     ),
   },
 
-  // 4 ─ Demo: ingest + ask
+  // 3b ─ Teaser: one question, 60 seconds
   {
-    id: 4, layout: 'code', title: 'Demo: ingest and ask', steps: 3, speaker: 'A',
-    speakerNotes: 'LIVE DEMO. Switch to the terminal. POST /ingest with the handbook text. It is chunked, embedded by a model inside the process, and stored in SurrealDB. [next] Ask a question that needs two facts. [next] Two facts, both cited [1], plus the cosine score of the passage that grounded them. The live API prints JSON; this slide is the same session, formatted. If the demo breaks, stay on this slide and narrate it.',
+    id: 40, layout: 'code', title: 'Teaser: one question', steps: 2, speaker: 'A',
+    speakerNotes: 'LIVE, sixty seconds, no explanation yet. The handbook is already ingested. Switch to the terminal and ask one question. [next] An answer, with a citation, from a model running inside this Go process. Now: hold on to that. For the next fifteen minutes I will show you how it works, and at the end we do the whole thing again, properly, with the network off. Fallback if the terminal is not ready: this slide is the recorded output.',
     content: (step) => (
       <div className="h-full flex flex-col">
         <div className="flex items-start justify-between">
-          <Header kicker="1 · Demo" title={<>Ingest a doc. Ask a question.<br /><Cyan>Get an answer with citations.</Cyan></>} />
+          <Header kicker="Sixty seconds" title={<>One question. <Cyan>Answered inside this Go process.</Cyan></>} />
           <LiveBadge />
         </div>
-        <Terminal title="local-rag-agent · :8010" hideOutput fontSize={27}>
-          <Note>ingest: chunked, embedded locally (EmbeddingGemma), stored in SurrealDB</Note>
-          <Prompt>POST /ingest  source=handbook</Prompt>
-          <Out><span style={{ color: COLORS.emerald500 }}>stored</span> 1/1 chunk(s) from handbook</Out>
+        <Terminal title="local-rag-agent · :8010" hideOutput fontSize={29}>
+          <Prompt>POST /ask  "how many days can I work from home?"</Prompt>
           <Gap />
           <Show when={step >= 1}>
-            <Note>ask: embedded locally, matched by cosine, answered by a local model</Note>
-            <Prompt>POST /ask  "how many days can I work from home, and the internet reimbursement?"</Prompt>
-          </Show>
-          <Show when={step >= 2}>
-            <Out>- Employees may work up to 3 days per week remotely <Cyan>[1]</Cyan>.</Out>
-            <Out>- The company reimburses home internet up to $50 per month <Cyan>[1]</Cyan>.</Out>
-            <Out color={COLORS.slate400}>└ source=handbook  cosine=0.792</Out>
+            <Out>Employees may work up to 3 days per week remotely <Cyan>[1]</Cyan>.</Out>
+            <Out color={COLORS.slate400}>└ source=handbook  cosine=0.79</Out>
           </Show>
         </Terminal>
-      </div>
-    ),
-  },
-
-  // 5 ─ Demo: pull the network
-  {
-    id: 5, layout: 'split', title: 'Demo: offline', steps: 3, speaker: 'A',
-    speakerNotes: 'Now I turn Wi-Fi off. Actually do it and show the menu bar. Check at the venue that the clicker and the projector do not ride on Wi-Fi. [next] Ask again. Same answer, same citation. [next] No API key exists to set, and no prompt leaves this laptop. What is left on the network is loopback: SurrealDB and the trace collector, both on localhost. One honest footnote: GoFr sends an anonymous start-up ping by default; GOFR_TELEMETRY=false turns it off, and it is off here. I am leaving Wi-Fi off for the rest of the talk.',
-    content: (step) => (
-      <div className="h-full flex flex-col">
-        <div className="flex items-start justify-between">
-          <Header kicker="1 · Demo" title={<>Now I pull the network.</>} />
-          <LiveBadge text={step >= 1 ? 'Offline' : 'Live demo'} />
-        </div>
-        <div className="grid grid-cols-[320px_1fr] gap-16 items-center">
-          <div className="flex flex-col items-center">
-            <WifiOff off={step >= 1} />
-            <div className="eyebrow text-[1.4rem] mt-6" style={{ color: step >= 1 ? COLORS.amber500 : COLORS.slate400 }}>
-              {step >= 1 ? 'wi-fi: off' : 'wi-fi: on'}
-            </div>
-          </div>
-          <div>
-            <Terminal title="local-rag-agent · offline" hideOutput fontSize={27}>
-              <Prompt>POST /ask  "how many days can I work from home?"</Prompt>
-              <Show when={step >= 1}>
-                <Out>Employees may work up to 3 days per week remotely <Cyan>[1]</Cyan>.</Out>
-                <Out color={COLORS.slate400}>└ source=handbook  cosine=0.79</Out>
-              </Show>
-            </Terminal>
-            <Reveal show={step >= 2} className="mt-14">
-              <div className="grid grid-cols-3 gap-8">
-                <Stat value="0" label="API keys" />
-                <Stat value="0" label="prompts leave the laptop" />
-                <Stat value="1" label="process, both models" />
-              </div>
-            </Reveal>
-          </div>
-        </div>
+        <Reveal show={step >= 1} className="mt-14">
+          <p className="font-display font-semibold text-[2.6rem]">Hold on to that. <Cyan>Here is how it works.</Cyan></p>
+          <p className="body-text mt-4">At the end we do it again, properly, with the network off.</p>
+        </Reveal>
       </div>
     ),
   },
@@ -393,7 +352,7 @@ const SLIDES: SlideData[] = [
     speakerNotes: 'Here is the whole thing. One Go binary. Both models are GGUF files loaded into this process on llama.cpp, through Kronk from Ardan Labs. [next] The chat model is Qwen3 0.6B at Q8, 639 MB on disk. The embedder is EmbeddingGemma 300M, 329 MB. [next] No model server, no model sidecar, no key. The vectors live in SurrealDB, which is just a database on localhost, the same as any service already has.',
     content: (step) => (
       <div className="h-full flex flex-col">
-        <Header kicker="2 · How it runs" title={<>Two GGUF models. <Cyan>Inside the process.</Cyan></>} />
+        <Header kicker="1 · How it runs" title={<>Two GGUF models. <Cyan>Inside the process.</Cyan></>} />
         <div className="flex items-center space-x-8 mt-4">
           <div className="flex-1 rounded-[2rem] border-2 p-10 relative" style={{ borderColor: `${COLORS.sky300}88`, background: `${COLORS.sky300}08` }}>
             <div className="absolute -top-5 left-10 px-4 eyebrow text-[1.15rem]" style={{ background: COLORS.bg, color: COLORS.sky300 }}>one go process · local-rag-agent</div>
@@ -457,7 +416,7 @@ const SLIDES: SlideData[] = [
     speakerNotes: 'The architecture, top to bottom. The handler calls the model. The model is two Kronk instances, one for chat and one for embeddings. Kronk reaches llama.cpp through yzma, which opens the llama.cpp libraries while the program is running, so there is no cgo and a plain go build. llama.cpp runs every layer on the GPU, Metal on this Mac. [next] And on the right, why the demo survives the network being pulled. At start-up Kronk sends a HEAD to huggingface.co with a five-second timeout. The first run downloads llama.cpp, pinned by Kronk to b10107, and both model files, each with a sha256 next to it. Every run after that finds everything on disk and never needs the network. One trap: KRONK_SKIP_NETWORK_CHECK means assume online. Leave it unset.',
     content: (step) => (
       <div className="h-full flex flex-col">
-        <Header kicker="2 · How it runs · Kronk" title={<>Kronk, top to bottom. <Cyan>No cgo, no server, one disk cache.</Cyan></>} />
+        <Header kicker="1 · How it runs · Kronk" title={<>Kronk, top to bottom. <Cyan>No cgo, no server, one disk cache.</Cyan></>} />
         <Diagram h={600}
           groups={[{ x: 0, y: 14, w: 1000, h: 586, label: 'one Go process' }]}
           nodes={[
@@ -489,7 +448,7 @@ const SLIDES: SlideData[] = [
     speakerNotes: 'One request, in detail. A chat call without a deadline on its context is refused. With one, it goes through a gate: a buffered channel of size NSeqMax times two, so two places by default, and one sequence decodes at a time. Request C waits in a select until a place frees or its context expires, 120 seconds in this agent. Inside, the batch engine renders the Jinja chat template from the GGUF, decodes tokens onto a channel, and Chat ranges over that channel until it closes. So the answer is complete when Chat returns; nothing is lazy. Tokens per second is output minus one over decode time, and the clock starts at the first output token, so it is decode speed only. [next] Embeddings are the same shape with a gate of one, a pool of llama contexts, and 768 floats that are L2-normalised to length one. That is why the cosine search in SurrealDB is really a dot product.',
     content: (step) => (
       <div className="h-full flex flex-col">
-        <Header kicker="2 · How it runs · Kronk" title={<>One request, in detail. <Cyan>A gate, then a pipeline.</Cyan></>} />
+        <Header kicker="1 · How it runs · Kronk" title={<>One request, in detail. <Cyan>A gate, then a pipeline.</Cyan></>} />
         <Diagram h={600}
           nodes={[
             { id: 'a', x: 0, y: 20, w: 200, h: 56, title: 'request A', mono: true },
@@ -529,7 +488,7 @@ const SLIDES: SlideData[] = [
     speakerNotes: 'One slide on GoFr, because the rest of the talk leans on one idea from it. You register a datasource once. [next] From then on every call through it gets a span, metrics, a debug log line, and a place on the health endpoint. You do not write that code. Hold on to that, because an LLM is about to become one of these.',
     content: (step) => (
       <div className="h-full flex flex-col">
-        <Header kicker="3 · The idea" title={<>Register a datasource once.<br /><Cyan>Every call through it is observed.</Cyan></>} />
+        <Header kicker="2 · The idea" title={<>Register a datasource once.<br /><Cyan>Every call through it is observed.</Cyan></>} />
         <div className="grid grid-cols-2 gap-14 items-start">
           <Terminal title="main.go" hideOutput fontSize={26}>
             <Code focus={step >= 1 ? [5] : []} code={`
@@ -570,7 +529,7 @@ app.Run()
     speakerNotes: 'So here is the idea. This is a database call in a handler. [next] And this is a model call. Same shape: a context in, a client off the context, a result and an error out. If the second one is a datasource, it gets everything the first one gets.',
     content: (step) => (
       <div className="h-full flex flex-col">
-        <Header kicker="3 · The idea" title={<>A model call has the same shape<br /><Cyan>as a database call.</Cyan></>} />
+        <Header kicker="2 · The idea" title={<>A model call has the same shape<br /><Cyan>as a database call.</Cyan></>} />
         <div className="grid grid-cols-2 gap-12">
           <div>
             <Label>a datasource you already trust</Label>
@@ -610,7 +569,7 @@ resp, err := c.LLM().Chat(c, msgs)
     speakerNotes: 'The whole contract. Three methods: Chat, HealthCheck, Name. Name is the health key and the default label. [next] The rest is optional and discovered by type assertion. Descriptor gives dashboards a real provider and model label instead of one generic name. StreamingModel adds Stream. And Embedder, added in GoFr v1.60, puts embeddings through the same path, with an llm.embed span.',
     content: (step) => (
       <div className="h-full flex flex-col">
-        <Header kicker="3 · The idea" title={<>The contract is <Cyan>three methods.</Cyan> The rest is optional.</>} />
+        <Header kicker="2 · The idea" title={<>The contract is <Cyan>three methods.</Cyan> The rest is optional.</>} />
         <div className="grid grid-cols-[1fr_360px] gap-12 items-start">
           <Terminal title="gofr.dev/pkg/gofr/ai · model.go · v1.58.0" hideOutput fontSize={21}>
             <Code focus={step === 0 ? range(1, 5) : range(7, 10)} code={`
@@ -651,7 +610,7 @@ type Descriptor interface {
       const focus = [range(2, 5), range(6, 9), range(10, 14)][step];
       return (
         <div className="h-full flex flex-col">
-          <Header kicker="3 · The idea" title={<>Chat() is a translation layer. <Cyan>Nothing else.</Cyan></>} />
+          <Header kicker="2 · The idea" title={<>Chat() is a translation layer. <Cyan>Nothing else.</Cyan></>} />
           <Terminal title="kronk.go · chatModel.Chat (options, deadline, nil checks trimmed)" hideOutput fontSize={22}>
             <Code focus={focus} code={`
 func (m *chatModel) Chat(ctx context.Context, messages []ai.Message, opts ...ai.Option) (*ai.Response, error) {
@@ -682,7 +641,7 @@ func (m *chatModel) Chat(ctx context.Context, messages []ai.Message, opts ...ai.
     speakerNotes: 'Register it once at start-up. [next] And in the handler it is just c.LLM().Chat. The handler has no idea the model is a file on my laptop. Register a hosted provider tomorrow and this code does not change.',
     content: (step) => (
       <div className="h-full flex flex-col">
-        <Header kicker="3 · The idea" title={<>Register once. <Cyan>The handler never knows it is local.</Cyan></>} />
+        <Header kicker="2 · The idea" title={<>Register once. <Cyan>The handler never knows it is local.</Cyan></>} />
         <Terminal title="main.go · start-up (trimmed)" hideOutput fontSize={24}>
           <Code code={`
 app.AddLLM(&chatModel{krn: chatKrn, modelID: chatKrn.ModelInfo().ID, timeout: 120 * time.Second})
@@ -709,7 +668,7 @@ resp, err := c.LLM().Chat(c, []ai.Message{
     speakerNotes: 'What GoFr does with your model, in two moments. At start-up, AddLLM ignores a nil model, even a typed-nil pointer, and the first model registers the two LLM metrics, once. Then the container stores it twice. A wrapped copy, built once with metrics, a tracer and the logger: that is what c.LLM() returns. And the raw model, which only the health endpoint calls, so a health probe never creates an llm span or bumps the request counter. Ask for a name that does not exist and you get ErrLLMNotConfigured, not a nil-pointer panic. [next] On every request, the handler calls c.LLM().Chat. That goes into the decorator: it starts the llm.chat span, calls your model inside it, which calls Kronk, then records a span with provider, model and token counts, a request counter, a token histogram, and one log line with the trace id. Debug on success, error on failure. And it never records the prompt or the answer. Counts and labels only.',
     content: (step) => (
       <div className="h-full flex flex-col">
-        <Header kicker="3 · The idea · GoFr" title={<>Registered once, wrapped once. <Cyan>Every call goes through the decorator.</Cyan></>} />
+        <Header kicker="2 · The idea · GoFr" title={<>Registered once, wrapped once. <Cyan>Every call goes through the decorator.</Cyan></>} />
         <Diagram h={610}
           groups={[{ x: 390, y: 14, w: 530, h: 596, label: 'container' }]}
           nodes={[
@@ -746,7 +705,7 @@ resp, err := c.LLM().Chat(c, []ai.Message{
     speakerNotes: 'Why does every span land under the request without anyone threading a context? Because gofr.Context embeds three things: a context.Context, the request, and the container. c.LLM and c.SurrealDB are promoted from the container. And c itself is a context.Context, the one GoFr\'s tracing middleware made when it extracted any incoming traceparent and started the POST /ask span. [next] So passing c as the ctx argument is the whole trick. The SurrealDB span, llm.chat, and the spans inside our model all nest under the request, and a traceparent from the caller carries straight through.',
     content: (step) => (
       <div className="h-full flex flex-col">
-        <Header kicker="3 · The idea · GoFr" title={<>Every span nests under the request <Cyan>because c is the context.</Cyan></>} />
+        <Header kicker="2 · The idea · GoFr" title={<>Every span nests under the request <Cyan>because c is the context.</Cyan></>} />
         <div className="grid grid-cols-[1.25fr_1fr] gap-12 items-start">
           <div>
             <Terminal title="gofr · context.go (trimmed)" hideOutput fontSize={21}>
@@ -788,7 +747,7 @@ type Context struct {
     speakerNotes: 'How does any datasource get a logger, metrics and a tracer? Duck typing. instrumentDatasource checks for UseLogger, UseMetrics, UseTracer, UseConfig and Connect, and calls each one only if the datasource has it. The datasource never has to import GoFr. That is how SurrealDB gets its SurrealDB.Query span. [next] Health works the same way. The endpoint asks every datasource, and for the model it asks the raw model, not the wrapper, so a health probe never creates an llm span or bumps the request counter. Everything UP means UP; anything DOWN means DEGRADED. One honest gap: at this version the health map has no SurrealDB entry, so the vector store is not on it.',
     content: (step) => (
       <div className="h-full flex flex-col">
-        <Header kicker="3 · The idea · GoFr" title={<>Datasources plug in by duck typing. <Cyan>Health asks the raw model.</Cyan></>} />
+        <Header kicker="2 · The idea · GoFr" title={<>Datasources plug in by duck typing. <Cyan>Health asks the raw model.</Cyan></>} />
         <div className="grid grid-cols-[1.25fr_1fr] gap-12 items-start">
           <Terminal title="gofr · external_db.go · instrumentDatasource (trimmed)" hideOutput fontSize={19}>
             <Code code={`
@@ -834,7 +793,7 @@ func (a *App) instrumentDatasource(ds any) {
     speakerNotes: 'What came from the interface. A trace: POST /ask, the SurrealDB query, llm.chat. Solid bars are GoFr. The two dashed ones the agent adds itself: in-process there is no network call to trace, so the embedding and the generation step get named by hand. [next] Metrics: the local model shows up as provider kronk, next to every hosted model. [next] Health: the model is a key on the health endpoint. Tokens per second is an attribute on my own generate span, not a GoFr metric.',
     content: (step) => (
       <div className="h-full flex flex-col">
-        <Header kicker="3 · The idea" title={<>Tracing, metrics, health from the interface. <Cyan>Two spans I added by hand.</Cyan></>} />
+        <Header kicker="2 · The idea" title={<>Tracing, metrics, health from the interface. <Cyan>Two spans I added by hand.</Cyan></>} />
         <div className="grid grid-cols-[1.3fr_1fr] gap-10 items-start">
           <Card>
             <Label>trace · POST /ask · not to scale</Label>
@@ -874,41 +833,13 @@ func (a *App) instrumentDatasource(ds any) {
     ),
   },
 
-  // 14 ─ Live: show the trace
-  {
-    id: 14, layout: 'code', title: 'Live: the evidence', steps: 3, speaker: 'A',
-    speakerNotes: 'LIVE DEMO, Wi-Fi still off. Pre-flight: the Jaeger all-in-one from the agents repo observability/ folder is running, and the /ask from a minute ago is already in it. Open Jaeger on 16686, pick local-rag-agent, open the /ask trace, expand llm.chat and point at kronk.generate and its tokens-per-second attribute. [next] Metrics: grep app_llm, point at provider kronk. [next] Health: the llm key is UP. Fallback if anything is down: go back one slide, it is the same picture.',
-    content: (step) => (
-      <div className="h-full flex flex-col">
-        <div className="flex items-start justify-between">
-          <Header kicker="3 · The idea" title={<>Same request, <Cyan>Wi-Fi still off.</Cyan></>} />
-          <LiveBadge text="Offline" />
-        </div>
-        <Terminal title="evidence · all on localhost" hideOutput fontSize={28}>
-          <Note>trace: POST /ask → kronk.embed → SurrealDB.Query → llm.chat → kronk.generate</Note>
-          <Prompt>open http://localhost:16686</Prompt>
-          <Gap />
-          <Show when={step >= 1}>
-            <Note>metrics: the local model, labelled like any provider</Note>
-            <Prompt>curl -s localhost:2132/metrics | grep app_llm</Prompt>
-            <Gap />
-          </Show>
-          <Show when={step >= 2}>
-            <Note>health: the model is a datasource</Note>
-            <Prompt>curl -s localhost:8010/.well-known/health</Prompt>
-          </Show>
-        </Terminal>
-      </div>
-    ),
-  },
-
   // 15 ─ Same move, twice more
   {
     id: 15, layout: 'split', title: 'Same move', steps: 3, speaker: 'A',
     speakerNotes: 'This is not really about models. Kronk has its own logger type: a function taking a context, a message and args. One adapter pointed at GoFr, and every llama.cpp load line comes out in GoFr format, at GoFr level. [next] The vector store is the same move. I wrote no vector-database integration. SurrealDB is an ordinary GoFr datasource, and the cosine search is just a query, traced as SurrealDB.Query. [next] And if you do not use GoFr: wrap your model client in a decorator that opens a span, records usage and reports health. That is all AddLLM does for you.',
     content: (step) => (
       <div className="h-full flex flex-col">
-        <Header kicker="3 · The idea" title={<>Same move, twice more. <Cyan>Any interface, same observability.</Cyan></>} />
+        <Header kicker="2 · The idea" title={<>Same move, twice more. <Cyan>Any interface, same observability.</Cyan></>} />
         <div className="grid grid-cols-[1.2fr_1fr] gap-10 items-start">
           <div>
             <Label>a foreign logger, pointed at GoFr</Label>
@@ -953,10 +884,10 @@ rows, err := c.SurrealDB.Query(c, query, nil)
   // 21 ─ Grounding
   {
     id: 21, layout: 'code', title: 'Grounding', steps: 2, speaker: 'A',
-    speakerNotes: 'Grounding is two things. A system prompt: only these passages, cite them, and say so if the answer is not there. [next] And a floor. Raise RECALL_FLOOR and weak matches are dropped; if nothing is left, the model is never called at all. In this demo the floor is zero, so retrieval always hands the model something. Watch what that does.',
+    speakerNotes: 'Grounding is two things. A system prompt: only these passages, cite them, and say so if the answer is not there. [next] And a floor. Raise RECALL_FLOOR and weak matches are dropped; if nothing is left, the model is never called at all. In this demo the floor is zero, so retrieval always hands the model something. You will see what that does in the demo.',
     content: (step) => (
       <div className="h-full flex flex-col">
-        <Header kicker="5 · Grounding" title={<>Grounding is a prompt <Cyan>and a floor.</Cyan></>} />
+        <Header kicker="3 · Grounding" title={<>Grounding is a prompt <Cyan>and a floor.</Cyan></>} />
         <Terminal title="main.go · system prompt" hideOutput fontSize={25}>
           <Code code={`
 "You answer using ONLY the numbered context passages provided. " +
@@ -978,6 +909,101 @@ if len(hits) == 0 {
     ),
   },
 
+  // 4 ─ Demo: ingest + ask
+  {
+    id: 4, layout: 'code', title: 'Demo: ingest and ask', steps: 3, speaker: 'A',
+    speakerNotes: 'LIVE DEMO. Switch to the terminal. POST /ingest with the handbook text. It is chunked, embedded by a model inside the process, and stored in SurrealDB. [next] Ask a question that needs two facts. [next] Two facts, both cited [1], plus the cosine score of the passage that grounded them. The live API prints JSON; this slide is the same session, formatted. If the demo breaks, stay on this slide and narrate it.',
+    content: (step) => (
+      <div className="h-full flex flex-col">
+        <div className="flex items-start justify-between">
+          <Header kicker="4 · Live, offline" title={<>Ingest a doc. Ask a question.<br /><Cyan>Get an answer with citations.</Cyan></>} />
+          <LiveBadge />
+        </div>
+        <Terminal title="local-rag-agent · :8010" hideOutput fontSize={27}>
+          <Note>ingest: chunked, embedded locally (EmbeddingGemma), stored in SurrealDB</Note>
+          <Prompt>POST /ingest  source=handbook</Prompt>
+          <Out><span style={{ color: COLORS.emerald500 }}>stored</span> 1/1 chunk(s) from handbook</Out>
+          <Gap />
+          <Show when={step >= 1}>
+            <Note>ask: embedded locally, matched by cosine, answered by a local model</Note>
+            <Prompt>POST /ask  "how many days can I work from home, and the internet reimbursement?"</Prompt>
+          </Show>
+          <Show when={step >= 2}>
+            <Out>- Employees may work up to 3 days per week remotely <Cyan>[1]</Cyan>.</Out>
+            <Out>- The company reimburses home internet up to $50 per month <Cyan>[1]</Cyan>.</Out>
+            <Out color={COLORS.slate400}>└ source=handbook  cosine=0.792</Out>
+          </Show>
+        </Terminal>
+      </div>
+    ),
+  },
+
+  // 5 ─ Demo: pull the network
+  {
+    id: 5, layout: 'split', title: 'Demo: offline', steps: 3, speaker: 'A',
+    speakerNotes: 'Now I turn Wi-Fi off. Actually do it and show the menu bar. Check at the venue that the clicker and the projector do not ride on Wi-Fi. [next] Ask again. Same answer, same citation. [next] No API key exists to set, and no prompt leaves this laptop. What is left on the network is loopback: SurrealDB and the trace collector, both on localhost. One honest footnote: GoFr sends an anonymous start-up ping by default; GOFR_TELEMETRY=false turns it off, and it is off here. Wi-Fi stays off for the rest of the demo.',
+    content: (step) => (
+      <div className="h-full flex flex-col">
+        <div className="flex items-start justify-between">
+          <Header kicker="4 · Live, offline" title={<>Now I pull the network.</>} />
+          <LiveBadge text={step >= 1 ? 'Offline' : 'Live demo'} />
+        </div>
+        <div className="grid grid-cols-[320px_1fr] gap-16 items-center">
+          <div className="flex flex-col items-center">
+            <WifiOff off={step >= 1} />
+            <div className="eyebrow text-[1.4rem] mt-6" style={{ color: step >= 1 ? COLORS.amber500 : COLORS.slate400 }}>
+              {step >= 1 ? 'wi-fi: off' : 'wi-fi: on'}
+            </div>
+          </div>
+          <div>
+            <Terminal title="local-rag-agent · offline" hideOutput fontSize={27}>
+              <Prompt>POST /ask  "how many days can I work from home?"</Prompt>
+              <Show when={step >= 1}>
+                <Out>Employees may work up to 3 days per week remotely <Cyan>[1]</Cyan>.</Out>
+                <Out color={COLORS.slate400}>└ source=handbook  cosine=0.79</Out>
+              </Show>
+            </Terminal>
+            <Reveal show={step >= 2} className="mt-14">
+              <div className="grid grid-cols-3 gap-8">
+                <Stat value="0" label="API keys" />
+                <Stat value="0" label="prompts leave the laptop" />
+                <Stat value="1" label="process, both models" />
+              </div>
+            </Reveal>
+          </div>
+        </div>
+      </div>
+    ),
+  },
+
+  // 14 ─ Live: show the trace
+  {
+    id: 14, layout: 'code', title: 'Live: the evidence', steps: 3, speaker: 'A',
+    speakerNotes: 'LIVE DEMO, Wi-Fi still off. Pre-flight: the Jaeger all-in-one from the agents repo observability/ folder is running, and the /ask from a minute ago is already in it. Open Jaeger on 16686, pick local-rag-agent, open the /ask trace, expand llm.chat and point at kronk.generate and its tokens-per-second attribute. [next] Metrics: grep app_llm, point at provider kronk. [next] Health: the llm key is UP. Fallback if anything is down: describe the "what you get" slide, it is the same picture.',
+    content: (step) => (
+      <div className="h-full flex flex-col">
+        <div className="flex items-start justify-between">
+          <Header kicker="4 · Live, offline" title={<>Same request, <Cyan>Wi-Fi still off.</Cyan></>} />
+          <LiveBadge text="Offline" />
+        </div>
+        <Terminal title="evidence · all on localhost" hideOutput fontSize={28}>
+          <Note>trace: POST /ask → kronk.embed → SurrealDB.Query → llm.chat → kronk.generate</Note>
+          <Prompt>open http://localhost:16686</Prompt>
+          <Gap />
+          <Show when={step >= 1}>
+            <Note>metrics: the local model, labelled like any provider</Note>
+            <Prompt>curl -s localhost:2132/metrics | grep app_llm</Prompt>
+            <Gap />
+          </Show>
+          <Show when={step >= 2}>
+            <Note>health: the model is a datasource</Note>
+            <Prompt>curl -s localhost:8010/.well-known/health</Prompt>
+          </Show>
+        </Terminal>
+      </div>
+    ),
+  },
+
   // 22 ─ Deliberate miss
   {
     id: 22, layout: 'code', title: 'A deliberate miss', steps: 2, speaker: 'A',
@@ -985,7 +1011,7 @@ if len(hits) == 0 {
     content: (step) => (
       <div className="h-full flex flex-col">
         <div className="flex items-start justify-between">
-          <Header kicker="5 · Grounding" title={<>Now I ask something <Cyan>the corpus cannot answer.</Cyan></>} />
+          <Header kicker="4 · Live, offline" title={<>Now I ask something <Cyan>the corpus cannot answer.</Cyan></>} />
           <LiveBadge text="Offline" />
         </div>
         <Terminal title="local-rag-agent · :8010" hideOutput fontSize={29}>
@@ -1011,7 +1037,7 @@ if len(hits) == 0 {
     speakerNotes: 'Honesty slide. A 0.6B model has a real ceiling. It is good at reading four passages and quoting them back with a citation, and at saying not in context. [next] It is not good at reasoning across many documents, long synthesis, or anything the corpus does not contain. When you hit that, change one env var for a bigger model, or register a hosted one. Same interface, same dashboards. Measure tokens per second and memory on your own hardware before you decide; I will not quote laptop numbers as if they were yours.',
     content: (step) => (
       <div className="h-full flex flex-col">
-        <Header kicker="6 · When not to bother" title={<>A 0.6B model <Cyan>has a real ceiling.</Cyan></>} />
+        <Header kicker="5 · When not to bother" title={<>A 0.6B model <Cyan>has a real ceiling.</Cyan></>} />
         <div className="grid grid-cols-2 gap-12">
           <Card>
             <Label color={COLORS.sky300}>✓ good at</Label>
@@ -1069,7 +1095,7 @@ if len(hits) == 0 {
   // 25 ─ Thanks
   {
     id: 25, layout: 'qr', title: 'Thank you', speaker: 'A',
-    speakerNotes: 'One last thing: the network has been off since slide five. Everything you saw after that ran on this laptop. The code is open; scan for the agent. Thank you, happy to take questions.',
+    speakerNotes: 'One last thing: the network has been off since the demo started. Everything you saw in it ran on this laptop. The code is open; scan for the agent. Thank you, happy to take questions.',
     content: () => (
       <div className="h-full grid grid-cols-[1fr_520px] gap-24 items-center">
         <div>
