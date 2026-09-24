@@ -117,6 +117,92 @@ const Legend = () => (
   </div>
 );
 
+// ─── Architecture diagrams (HLD / LLD slides) ─────────────────────────────────────────────────────
+// Boxes on a fixed canvas plus SVG elbow arrows. Coordinates are canvas pixels; the canvas is the
+// slide's content width (1664) by `h`. Only the deck's palette is used.
+type DTone = 'gofr' | 'kronk' | 'hw' | 'ext' | 'warn' | 'plain';
+type Side = 't' | 'r' | 'b' | 'l';
+interface DNode { id: string; x: number; y: number; w: number; h: number; title: React.ReactNode; sub?: React.ReactNode[]; tone?: DTone; mono?: boolean; show?: boolean; }
+interface DEdge { from: string; to: string; fs?: Side; ts?: Side; label?: string; dashed?: boolean; show?: boolean; }
+interface DGroup { x: number; y: number; w: number; h: number; label: string; show?: boolean; }
+
+const toneBox = (t: DTone = 'plain'): React.CSSProperties => {
+  switch (t) {
+    case 'gofr': return { background: `${COLORS.slate800}e6`, boxShadow: `0 0 0 2px ${COLORS.sky400}` };
+    case 'kronk': return { background: `${COLORS.slate800}e6`, boxShadow: `0 0 0 2px ${COLORS.indigo400}` };
+    case 'hw': return { background: `${COLORS.slate800}99`, boxShadow: `0 0 0 2px ${COLORS.slate500}` };
+    case 'ext': return { background: 'transparent', border: `2px dashed ${COLORS.slate400}` };
+    case 'warn': return { background: `${COLORS.slate800}e6`, boxShadow: `0 0 0 2px ${COLORS.amber500}` };
+    default: return { background: `${COLORS.slate800}cc`, boxShadow: '0 0 0 1px rgba(203,213,225,0.18)' };
+  }
+};
+
+const anchor = (n: DNode, s: Side): [number, number] =>
+  s === 'r' ? [n.x + n.w, n.y + n.h / 2] : s === 'l' ? [n.x, n.y + n.h / 2] : s === 't' ? [n.x + n.w / 2, n.y] : [n.x + n.w / 2, n.y + n.h];
+
+const edgePath = (a: [number, number], b: [number, number], s: Side) => {
+  if (s === 'r' || s === 'l') {
+    const mx = (a[0] + b[0]) / 2;
+    return { d: `M ${a[0]} ${a[1]} H ${mx} V ${b[1]} H ${b[0]}`, mid: [mx, (a[1] + b[1]) / 2] as [number, number] };
+  }
+  const my = (a[1] + b[1]) / 2;
+  return { d: `M ${a[0]} ${a[1]} V ${my} H ${b[0]} V ${b[1]}`, mid: [(a[0] + b[0]) / 2, my] as [number, number] };
+};
+
+const Diagram = ({ nodes, edges = [], groups = [], h = 620 }: { nodes: DNode[], edges?: DEdge[], groups?: DGroup[], h?: number }) => {
+  const byId: Record<string, DNode> = Object.fromEntries(nodes.map(n => [n.id, n]));
+  const vis = (v?: boolean): React.CSSProperties => ({ opacity: v === false ? 0 : 1, transition: 'opacity 450ms ease' });
+  return (
+    <div className="relative" style={{ width: 1664, height: h }}>
+      {groups.map((g, i) => (
+        <div key={i} className="absolute rounded-3xl" style={{ left: g.x, top: g.y, width: g.w, height: g.h, border: `2px solid ${COLORS.sky300}55`, background: `${COLORS.sky300}08`, ...vis(g.show) }}>
+          <div className="absolute -top-4 left-8 px-3 eyebrow text-[1.05rem]" style={{ background: COLORS.bg, color: COLORS.sky300 }}>{g.label}</div>
+        </div>
+      ))}
+      <svg className="absolute inset-0 pointer-events-none" width={1664} height={h} viewBox={`0 0 1664 ${h}`}>
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill={COLORS.slate400} />
+          </marker>
+        </defs>
+        {edges.map((e, i) => {
+          const fs = e.fs ?? 'r';
+          const { d } = edgePath(anchor(byId[e.from], fs), anchor(byId[e.to], e.ts ?? 'l'), fs);
+          return <path key={i} d={d} fill="none" stroke={COLORS.slate400} strokeWidth={2.5} strokeDasharray={e.dashed ? '8 7' : undefined} markerEnd="url(#arrow)" style={vis(e.show)} />;
+        })}
+      </svg>
+      {edges.map((e, i) => {
+        if (!e.label) return null;
+        const fs = e.fs ?? 'r';
+        const { mid } = edgePath(anchor(byId[e.from], fs), anchor(byId[e.to], e.ts ?? 'l'), fs);
+        return (
+          <div key={`l${i}`} className="absolute -translate-x-1/2 -translate-y-1/2 px-2 rounded font-mono text-[1rem] whitespace-nowrap"
+               style={{ left: mid[0], top: mid[1], background: COLORS.bg, color: COLORS.slate300, ...vis(e.show) }}>{e.label}</div>
+        );
+      })}
+      {nodes.map(n => (
+        <div key={n.id} className="absolute rounded-2xl px-6 flex flex-col justify-center" style={{ left: n.x, top: n.y, width: n.w, height: n.h, ...toneBox(n.tone), ...vis(n.show) }}>
+          <div className={n.mono ? 'font-mono text-[1.3rem] text-white' : 'font-display font-semibold text-[1.45rem] text-white leading-tight'}>{n.title}</div>
+          {n.sub?.map((s, i) => <div key={i} className="font-mono text-[1.02rem] mt-1 leading-snug" style={{ color: COLORS.slate300 }}>{s}</div>)}
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const DLegend = ({ items }: { items: [DTone, string][] }) => (
+  <div className="flex space-x-8 mt-5 text-[1.1rem]" style={{ color: COLORS.slate400 }}>
+    {items.map(([t, l]) => (
+      <span key={l} className="flex items-center"><span className="inline-block w-7 h-4 mr-3 rounded" style={toneBox(t)}></span>{l}</span>
+    ))}
+  </div>
+);
+
+// Where a slide's facts come from.
+const Src = ({ children }: { children: React.ReactNode }) => (
+  <div className="font-mono text-[1.05rem] mt-6" style={{ color: COLORS.slate500 }}>{children}</div>
+);
+
 // Demo console lines.
 const Prompt = ({ children }: { children: React.ReactNode }) => (
   <div><span style={{ color: COLORS.sky400 }} className="font-bold">❯ </span><span className="text-white">{children}</span></div>
@@ -365,6 +451,78 @@ const SLIDES: SlideData[] = [
     ),
   },
 
+  // 6a ─ Kronk HLD
+  {
+    id: 28, layout: 'diagram', title: 'Kronk: architecture', steps: 2, speaker: 'A',
+    speakerNotes: 'The architecture, top to bottom. The handler calls the model. The model is two Kronk instances, one for chat and one for embeddings. Kronk reaches llama.cpp through yzma, which opens the llama.cpp libraries while the program is running, so there is no cgo and a plain go build. llama.cpp runs every layer on the GPU, Metal on this Mac. [next] And on the right, why the demo survives the network being pulled. At start-up Kronk sends a HEAD to huggingface.co with a five-second timeout. The first run downloads llama.cpp, pinned by Kronk to b10107, and both model files, each with a sha256 next to it. Every run after that finds everything on disk and never needs the network. One trap: KRONK_SKIP_NETWORK_CHECK means assume online. Leave it unset.',
+    content: (step) => (
+      <div className="h-full flex flex-col">
+        <Header kicker="2 · How it runs · Kronk" title={<>Kronk, top to bottom. <Cyan>No cgo, no server, one disk cache.</Cyan></>} />
+        <Diagram h={600}
+          groups={[{ x: 0, y: 14, w: 1000, h: 586, label: 'one Go process' }]}
+          nodes={[
+            { id: 'h', x: 40, y: 50, w: 920, h: 84, title: 'GoFr handler', sub: ['c.LLM().Chat(…)  ·  embedText(…)'], tone: 'gofr' },
+            { id: 'k', x: 40, y: 178, w: 920, h: 96, title: 'Kronk SDK · two instances', sub: ['chat: Qwen3-0.6B  ·  embed: EmbeddingGemma-300M'], tone: 'kronk' },
+            { id: 'y', x: 40, y: 318, w: 920, h: 84, title: 'yzma · loads llama.cpp while the program runs', sub: ['no cgo  ·  plain go build  ·  swap builds without recompiling'], tone: 'kronk' },
+            { id: 'l', x: 40, y: 446, w: 920, h: 110, title: 'llama.cpp b10107', sub: ['libllama + ggml .dylib files  ·  pinned by Kronk'], tone: 'hw' },
+            { id: 'g', x: 1110, y: 460, w: 554, h: 84, title: 'Metal GPU', sub: ['all layers offloaded by default'], tone: 'hw' },
+            { id: 'n', x: 1110, y: 14, w: 554, h: 84, title: 'huggingface.co', sub: ['HEAD probe, 5 s timeout  ·  first run only'], tone: 'ext', show: step >= 1 },
+            { id: 'd', x: 1110, y: 140, w: 554, h: 190, title: '~/.kronk  (disk)', sub: ['libraries/darwin/arm64/metal/', 'models/<owner>/<repo>/*.gguf', 'models/…/sha/*   sha256 + size', 'on disk → no download'], tone: 'plain', show: step >= 1 },
+          ]}
+          edges={[
+            { from: 'h', to: 'k', fs: 'b', ts: 't' },
+            { from: 'k', to: 'y', fs: 'b', ts: 't' },
+            { from: 'y', to: 'l', fs: 'b', ts: 't' },
+            { from: 'l', to: 'g', label: 'offload' },
+            { from: 'n', to: 'd', fs: 'b', ts: 't', dashed: true, label: 'download once', show: step >= 1 },
+            { from: 'k', to: 'd', label: 'reads', show: step >= 1 },
+          ]}
+        />
+        <DLegend items={[['gofr', 'GoFr'], ['kronk', 'Kronk'], ['hw', 'llama.cpp / hardware'], ['ext', 'network']]} />
+      </div>
+    ),
+  },
+
+  // 6b ─ Kronk LLD
+  {
+    id: 29, layout: 'diagram', title: 'Kronk: one request', steps: 2, speaker: 'A',
+    speakerNotes: 'One request, in detail. A chat call without a deadline on its context is refused. With one, it goes through a gate: a buffered channel of size NSeqMax times two, so two places by default, and one sequence decodes at a time. Request C waits in a select until a place frees or its context expires, 120 seconds in this agent. Inside, the batch engine renders the Jinja chat template from the GGUF, decodes tokens onto a channel, and Chat ranges over that channel until it closes. So the answer is complete when Chat returns; nothing is lazy. Tokens per second is output minus one over decode time, and the clock starts at the first output token, so it is decode speed only. [next] Embeddings are the same shape with a gate of one, a pool of llama contexts, and 768 floats that are L2-normalised to length one. That is why the cosine search in SurrealDB is really a dot product.',
+    content: (step) => (
+      <div className="h-full flex flex-col">
+        <Header kicker="2 · How it runs · Kronk" title={<>One request, in detail. <Cyan>A gate, then a pipeline.</Cyan></>} />
+        <Diagram h={600}
+          nodes={[
+            { id: 'a', x: 0, y: 20, w: 200, h: 56, title: 'request A', mono: true },
+            { id: 'b', x: 0, y: 92, w: 200, h: 56, title: 'request B', mono: true },
+            { id: 'c', x: 0, y: 164, w: 200, h: 56, title: 'request C', mono: true },
+            { id: 'gate', x: 270, y: 40, w: 300, h: 150, title: 'gate · 2 places', sub: ['chan struct{}', 'cap = NSeqMax × 2', 'no deadline → refused'], tone: 'kronk' },
+            { id: 'wait', x: 270, y: 232, w: 300, h: 124, title: 'C waits', sub: ['select: slot, or ctx.Done()', 'here: 120 s deadline'], tone: 'warn' },
+            { id: 'be', x: 640, y: 60, w: 230, h: 110, title: 'batch engine', sub: ['1 decode slot'], tone: 'kronk' },
+            { id: 'tp', x: 900, y: 60, w: 230, h: 110, title: 'chat template', sub: ['Jinja · from GGUF'], tone: 'kronk' },
+            { id: 'dc', x: 1160, y: 60, w: 230, h: 110, title: 'decode', sub: ['tokens → channel'], tone: 'hw' },
+            { id: 'dr', x: 1420, y: 60, w: 244, h: 110, title: 'drain → reply', sub: ['for msg := range ch', 'complete on return'], tone: 'kronk' },
+            { id: 'u', x: 1160, y: 238, w: 504, h: 96, title: 'tokens/sec = (out − 1) / decode time', sub: ['clock starts at the first output token'], tone: 'plain' },
+            { id: 'e0', x: 0, y: 460, w: 200, h: 110, title: 'embedText', mono: true, show: step >= 1 },
+            { id: 'eg', x: 270, y: 460, w: 300, h: 110, title: 'gate · 1 place', sub: ['cap = NSeqMax'], tone: 'kronk', show: step >= 1 },
+            { id: 'ep', x: 640, y: 460, w: 230, h: 110, title: 'context pool', sub: ['one llama context'], tone: 'kronk', show: step >= 1 },
+            { id: 'ed', x: 900, y: 460, w: 230, h: 110, title: 'tokenize → decode', tone: 'hw', show: step >= 1 },
+            { id: 'ef', x: 1160, y: 460, w: 230, h: 110, title: '768 floats', sub: ['model width'], tone: 'hw', show: step >= 1 },
+            { id: 'en', x: 1420, y: 460, w: 244, h: 110, title: 'L2 normalise', sub: ['‖v‖ = 1', 'cosine = dot'], tone: 'kronk', show: step >= 1 },
+          ]}
+          edges={[
+            { from: 'a', to: 'gate' }, { from: 'b', to: 'gate' },
+            { from: 'c', to: 'wait', dashed: true },
+            { from: 'gate', to: 'be' }, { from: 'be', to: 'tp' }, { from: 'tp', to: 'dc' }, { from: 'dc', to: 'dr' },
+            { from: 'dr', to: 'u', fs: 'b', ts: 't', dashed: true, label: 'Usage' },
+            { from: 'e0', to: 'eg', show: step >= 1 }, { from: 'eg', to: 'ep', show: step >= 1 }, { from: 'ep', to: 'ed', show: step >= 1 },
+            { from: 'ed', to: 'ef', show: step >= 1 }, { from: 'ef', to: 'en', show: step >= 1 },
+          ]}
+        />
+        <Src>kronk@v1.29.3 · sdk/kronk/kronk.go · acquire.go · model/chat.go · model/batch_finish.go · model/embed.go</Src>
+      </div>
+    ),
+  },
+
   // 8 ─ GoFr, minimal
   {
     id: 8, layout: 'grid', title: 'GoFr', steps: 2, speaker: 'A',
@@ -545,95 +703,127 @@ resp, err := c.LLM().Chat(c, []ai.Message{
     ),
   },
 
-  // 12a ─ Inside AddLLM (GoFr internals)
+  // 12a ─ GoFr LLD: AddLLM and the decorator
   {
-    id: 26, layout: 'code', title: 'Inside AddLLM', steps: 3, speaker: 'A',
-    speakerNotes: 'What does AddLLM actually do? It ignores a nil model, and a typed-nil pointer too, so a failed constructor can never panic later. [next] The first model registers the two LLM metrics, once. Metrics are opt-in: a service with no model pays nothing. [next] Then the container keeps two things. The raw model, which the health endpoint calls, so a health check never creates a span or bumps request metrics. And a wrapped model, built once, which is what c.LLM() returns. Ask for a name that does not exist and you get ErrLLMNotConfigured, not a nil-pointer panic.',
+    id: 26, layout: 'diagram', title: 'GoFr: inside c.LLM()', steps: 2, speaker: 'A',
+    speakerNotes: 'What GoFr does with your model, in two moments. At start-up, AddLLM ignores a nil model, even a typed-nil pointer, and the first model registers the two LLM metrics, once. Then the container stores it twice. A wrapped copy, built once with metrics, a tracer and the logger: that is what c.LLM() returns. And the raw model, which only the health endpoint calls, so a health probe never creates an llm span or bumps the request counter. Ask for a name that does not exist and you get ErrLLMNotConfigured, not a nil-pointer panic. [next] On every request, the handler calls c.LLM().Chat. That goes into the decorator: it starts the llm.chat span, calls your model inside it, which calls Kronk, then records a span with provider, model and token counts, a request counter, a token histogram, and one log line with the trace id. Debug on success, error on failure. And it never records the prompt or the answer. Counts and labels only.',
     content: (step) => (
       <div className="h-full flex flex-col">
-        <Header kicker="3 · The idea" title={<>Register once. <Cyan>GoFr wraps it once.</Cyan></>} />
-        <div className="grid grid-cols-[1fr_1.15fr] gap-10 items-start">
-          <Terminal title="gofr · external_db.go (trimmed)" hideOutput fontSize={19}>
-            <Code focus={step === 0 ? [2, 3, 4] : step === 1 ? [5, 6, 7] : [8, 9]} code={`
-func (a *App) AddLLM(m ai.Model, opts ...LLMOption) {
-	if m == nil {
-		return // typed-nil pointers too
-	}
-	if !a.container.HasLLM() {
-		ai.RegisterMetrics(a.Metrics()) // once
-	}
-	a.instrumentDatasource(m)
-	a.container.SetLLM(m, o.name)
-}
-`} />
-          </Terminal>
-          <Reveal show={step >= 2}>
-            <Terminal title="gofr · container.go · SetLLM (trimmed)" hideOutput fontSize={19}>
-              <Code focus={[3, 4]} code={`
-func (c *Container) SetLLM(m ai.Model, name ...string) {
-	n := llmName(name)
-	c.llmModels[n] = m                 // raw: health checks
-	c.llms[n] = ai.NewLLM(m, ai.Deps{  // wrapped: c.LLM()
-		Metrics: c.metricsManager,
-		Tracer:  otel.GetTracerProvider().Tracer("gofr-llm"),
-		Logger:  c.Logger,
-	})
-}
-`} />
-            </Terminal>
-          </Reveal>
-        </div>
-        <Reveal show={step >= 2}>
-          <Caption><Mono className="text-white">c.LLM("typo")</Mono> returns <Mono className="text-white">ErrLLMNotConfigured</Mono>. <W>Not a nil-pointer panic.</W></Caption>
-        </Reveal>
+        <Header kicker="3 · The idea · GoFr" title={<>Registered once, wrapped once. <Cyan>Every call goes through the decorator.</Cyan></>} />
+        <Diagram h={610}
+          groups={[{ x: 390, y: 14, w: 530, h: 596, label: 'container' }]}
+          nodes={[
+            { id: 'add', x: 0, y: 40, w: 330, h: 96, title: 'app.AddLLM(model)', sub: ['once, at start-up'], mono: true, tone: 'gofr' },
+            { id: 'chk', x: 0, y: 186, w: 330, h: 120, title: 'guards', sub: ['nil / typed-nil → ignore', 'first model → register', 'the LLM metrics, once'], tone: 'plain' },
+            { id: 'hl', x: 0, y: 467, w: 330, h: 96, title: '/.well-known/health', mono: true, sub: ['asks the raw model'], tone: 'plain' },
+            { id: 'wr', x: 430, y: 50, w: 450, h: 110, title: 'llms[name]  · wrapped', sub: ['ai.NewLLM(model, deps)', 'what c.LLM() returns'], tone: 'gofr' },
+            { id: 'dp', x: 430, y: 214, w: 450, h: 120, title: 'deps', sub: ['metrics manager', 'tracer "gofr-llm"', 'logger'], tone: 'plain' },
+            { id: 'raw', x: 430, y: 460, w: 450, h: 110, title: 'llmModels[name]  · raw', sub: ['the same model, unwrapped', 'for health checks only'], tone: 'plain' },
+            { id: 'hd', x: 1000, y: 30, w: 664, h: 80, title: 'handler: c.LLM().Chat(c, msgs)', mono: true, tone: 'gofr', show: step >= 1 },
+            { id: 'dec', x: 1000, y: 160, w: 664, h: 120, title: 'decorator · Instrument', sub: ['start span "llm." + op', 'call your model inside it', 'record  →  end span'], tone: 'gofr', show: step >= 1 },
+            { id: 'md', x: 1000, y: 330, w: 664, h: 80, title: 'chatModel.Chat → Kronk → llama.cpp', mono: true, tone: 'kronk', show: step >= 1 },
+            { id: 'rec', x: 1000, y: 460, w: 664, h: 140, title: 'recorded: counts and labels, never the prompt', sub: ['span llm.chat · provider · model · tokens', 'app_llm_request_count · app_llm_tokens_per_request', 'log: debug ok, error fail, with trace_id'], tone: 'plain', show: step >= 1 },
+          ]}
+          edges={[
+            { from: 'add', to: 'chk', fs: 'b', ts: 't' },
+            { from: 'add', to: 'wr' },
+            { from: 'wr', to: 'dp', fs: 'b', ts: 't', label: 'built with' },
+            { from: 'hl', to: 'raw' },
+            { from: 'hd', to: 'dec', fs: 'b', ts: 't', show: step >= 1 },
+            { from: 'wr', to: 'dec', dashed: true, show: step >= 1 },
+            { from: 'dec', to: 'md', fs: 'b', ts: 't', show: step >= 1 },
+            { from: 'md', to: 'rec', fs: 'b', ts: 't', show: step >= 1 },
+          ]}
+        />
+        <Src>gofr@v1.58.0 · external_db.go (AddLLM) · container/container.go (SetLLM) · ai/llm.go · ai/instrument.go</Src>
       </div>
     ),
   },
 
-  // 12b ─ The decorator (GoFr internals)
+  // 12c ─ GoFr: c is the context
   {
-    id: 27, layout: 'code', title: 'The decorator', steps: 2, speaker: 'A',
-    speakerNotes: 'This is the pattern the whole talk rests on. c.LLM() hands you a decorator: same interface as your model, one function in the middle. Every Chat goes through Instrument, which opens the llm.chat span, runs your model inside it, and records. [next] What it records: the span with provider, model and token counts; a request counter; a token histogram by token type; and one log line with the trace id. Debug on success, Error on failure. And it never records the prompt or the answer. Counts and labels only. For a talk about keeping data on the laptop, that matters: the observability does not leak either.',
+    id: 34, layout: 'code', title: 'GoFr: c is the context', steps: 2, speaker: 'A',
+    speakerNotes: 'Why does every span land under the request without anyone threading a context? Because gofr.Context embeds three things: a context.Context, the request, and the container. c.LLM and c.SurrealDB are promoted from the container. And c itself is a context.Context, the one GoFr\'s tracing middleware made when it extracted any incoming traceparent and started the POST /ask span. [next] So passing c as the ctx argument is the whole trick. The SurrealDB span, llm.chat, and the spans inside our model all nest under the request, and a traceparent from the caller carries straight through.',
     content: (step) => (
       <div className="h-full flex flex-col">
-        <Header kicker="3 · The idea" title={<>Every call goes through one decorator. <Cyan>It records counts, never content.</Cyan></>} />
-        <div className="grid grid-cols-[1fr_520px] gap-10 items-start">
+        <Header kicker="3 · The idea · GoFr" title={<>Every span nests under the request <Cyan>because c is the context.</Cyan></>} />
+        <div className="grid grid-cols-[1.25fr_1fr] gap-12 items-start">
           <div>
-            <Terminal title="gofr · ai/llm.go + ai/instrument.go (trimmed)" hideOutput fontSize={20}>
-            <Code focus={step === 0 ? [1, 2, 3, 4] : [7, 8, 9, 10]} code={`
-// every c.LLM().Chat goes through here
-return l.call(ctx, opChat, func(ctx context.Context) (*Response, error) {
-	return l.model.Chat(ctx, messages, opts...) // your model
-})
-
-// Instrument
-ctx, span := tracerOf(info).Start(ctx, "llm."+info.Op)
-defer span.End()
-resp, err := fn(ctx)               // your model runs inside the span
-record(ctx, info, span, resp, err) // metrics · span attrs · log
+            <Terminal title="gofr · context.go (trimmed)" hideOutput fontSize={21}>
+              <Code focus={step === 0 ? [] : [2]} code={`
+type Context struct {
+	context.Context      // span-scoped: children nest under the request
+	Request              // c.Bind, c.Param, …
+	*container.Container // c.LLM(), c.SurrealDB, c.Logger
+	responder Responder
+}
 `} />
             </Terminal>
             <Reveal show={step >= 1}>
-              <Caption>Counts and labels only. <W>Your prompt and the answer are never recorded.</W></Caption>
+              <Caption><Mono className="text-white">c.LLM().Chat(c, …)</Mono>: passing <Mono className="text-white">c</Mono> as the ctx <W>is the whole trick.</W></Caption>
             </Reveal>
           </div>
           <Reveal show={step >= 1}>
-            <div className="space-y-4">
-              {[
-                ['span', 'llm.chat', 'provider · model · tokens'],
-                ['counter', 'app_llm_request_count', 'provider · model · op · status'],
-                ['histogram', 'app_llm_tokens_per_request', 'token_type · status'],
-                ['log', 'Debug ok · Error fail', 'with the request trace_id'],
-              ].map(([kind, name, labels]) => (
-                <Card key={kind} className="!py-5 !px-7">
-                  <Label>{kind}</Label>
-                  <div className="font-mono text-[1.3rem] text-white -mt-1">{name}</div>
-                  <div className="text-[1.15rem] mt-1" style={{ color: COLORS.slate400 }}>{labels}</div>
-                </Card>
-              ))}
-            </div>
+            <Card className="!p-8">
+              <Label>span tree · one /ask</Label>
+              <pre className="font-mono text-[1.3rem] leading-[1.9] m-0">
+                <span className="text-white">POST /ask</span>{'\n'}
+                <span style={{ color: COLORS.slate500 }}>├─ </span><span style={{ color: COLORS.sky400 }}>kronk.embed</span>{'\n'}
+                <span style={{ color: COLORS.slate500 }}>├─ </span><span style={{ color: COLORS.sky300 }}>SurrealDB.Query</span>{'\n'}
+                <span style={{ color: COLORS.slate500 }}>└─ </span><span style={{ color: COLORS.sky300 }}>llm.chat</span>{'\n'}
+                <span style={{ color: COLORS.slate500 }}>   └─ </span><span style={{ color: COLORS.sky400 }}>kronk.generate</span>
+              </pre>
+              <div className="text-[1.15rem] mt-5" style={{ color: COLORS.slate400 }}>root span started by GoFr's tracing middleware, continuing any incoming <Mono>traceparent</Mono></div>
+            </Card>
           </Reveal>
         </div>
+        <Src>gofr@v1.58.0 · pkg/gofr/context.go · pkg/gofr/http/middleware/tracer.go</Src>
+      </div>
+    ),
+  },
+
+  // 12d ─ GoFr: duck typing and health
+  {
+    id: 35, layout: 'code', title: 'GoFr: datasources and health', steps: 2, speaker: 'A',
+    speakerNotes: 'How does any datasource get a logger, metrics and a tracer? Duck typing. instrumentDatasource checks for UseLogger, UseMetrics, UseTracer, UseConfig and Connect, and calls each one only if the datasource has it. The datasource never has to import GoFr. That is how SurrealDB gets its SurrealDB.Query span. [next] Health works the same way. The endpoint asks every datasource, and for the model it asks the raw model, not the wrapper, so a health probe never creates an llm span or bumps the request counter. Everything UP means UP; anything DOWN means DEGRADED. One honest gap: at this version the health map has no SurrealDB entry, so the vector store is not on it.',
+    content: (step) => (
+      <div className="h-full flex flex-col">
+        <Header kicker="3 · The idea · GoFr" title={<>Datasources plug in by duck typing. <Cyan>Health asks the raw model.</Cyan></>} />
+        <div className="grid grid-cols-[1.25fr_1fr] gap-12 items-start">
+          <Terminal title="gofr · external_db.go · instrumentDatasource (trimmed)" hideOutput fontSize={19}>
+            <Code code={`
+func (a *App) instrumentDatasource(ds any) {
+	if l, ok := ds.(interface{ UseLogger(any) }); ok {
+		l.UseLogger(a.Logger())
+	}
+	if m, ok := ds.(interface{ UseMetrics(any) }); ok {
+		m.UseMetrics(a.Metrics())
+	}
+	if t, ok := ds.(interface{ UseTracer(any) }); ok {
+		t.UseTracer(tracer) // "gofr-surrealdb", …
+	}
+	if c, ok := ds.(interface{ Connect() }); ok {
+		c.Connect()
+	}
+}
+`} />
+          </Terminal>
+          <Reveal show={step >= 1}>
+            <Card className="!p-8">
+              <Label>GET /.well-known/health</Label>
+              <pre className="font-mono text-[1.2rem] leading-[1.7] m-0" style={{ color: COLORS.slate50 }}>{`{"data": {
+  "llm": {"status": "UP", …},
+  "name": "local-rag-agent",
+  "status": "UP"
+}}`}</pre>
+              <div className="text-[1.2rem] mt-5 space-y-2" style={{ color: COLORS.slate300 }}>
+                <div><Mono className="text-white">llm</Mono> is the raw model: no span, no metrics.</div>
+                <div>Any dependency DOWN → <W>DEGRADED</W>.</div>
+              </div>
+            </Card>
+          </Reveal>
+        </div>
+        <Src>gofr@v1.58.0 · pkg/gofr/external_db.go:51 · pkg/gofr/container/health.go</Src>
       </div>
     ),
   },
