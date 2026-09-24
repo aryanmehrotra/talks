@@ -279,7 +279,7 @@ const SLIDES: SlideData[] = [
   // 2 ─ whoami
   {
     id: 2, layout: 'split', title: 'whoami', speaker: 'A',
-    speakerNotes: 'Quick intro. I maintain GoFr, an open-source Go framework. It matters here for one reason: building this found a hole in it, and I fixed it upstream. That comes near the end.',
+    speakerNotes: 'Quick intro. I maintain GoFr, an open-source Go framework. It matters here for one reason: the model you are about to see plugs into GoFr exactly the way a database does.',
     content: () => (
       <div className="h-full grid grid-cols-[520px_1fr] gap-24 items-center">
         <div className="rounded-2xl overflow-hidden aspect-square" style={{ boxShadow: '0 0 0 1px rgba(255,255,255,0.10), 0 25px 50px -12px rgba(0,0,0,0.5)' }}>
@@ -607,7 +607,7 @@ resp, err := c.LLM().Chat(c, msgs)
   // 10 ─ The contract
   {
     id: 10, layout: 'code', title: 'The contract', steps: 2, speaker: 'A',
-    speakerNotes: 'The whole contract. Three methods: Chat, HealthCheck, Name. Name is the health key and the default label. [next] The rest is optional and discovered by type assertion. Descriptor gives dashboards a real provider and model label instead of one generic name. StreamingModel adds Stream. And there is a third, Embedder, which did not exist when I started. I had to add it. Later.',
+    speakerNotes: 'The whole contract. Three methods: Chat, HealthCheck, Name. Name is the health key and the default label. [next] The rest is optional and discovered by type assertion. Descriptor gives dashboards a real provider and model label instead of one generic name. StreamingModel adds Stream. And Embedder, added in GoFr v1.60, puts embeddings through the same path, with an llm.embed span.',
     content: (step) => (
       <div className="h-full flex flex-col">
         <Header kicker="3 · The idea" title={<>The contract is <Cyan>three methods.</Cyan> The rest is optional.</>} />
@@ -831,7 +831,7 @@ func (a *App) instrumentDatasource(ds any) {
   // 13 ─ What you get
   {
     id: 13, layout: 'grid', title: 'What you get', steps: 3, speaker: 'A',
-    speakerNotes: 'What came from the interface. A trace: POST /ask, the SurrealDB query, llm.chat. Solid bars are GoFr. The two dashed ones I added by hand, and each of them is a story in a minute. [next] Metrics: the local model shows up as provider kronk, next to every hosted model. [next] Health: the model is a key on the health endpoint. Tokens per second is an attribute on my own generate span, not a GoFr metric.',
+    speakerNotes: 'What came from the interface. A trace: POST /ask, the SurrealDB query, llm.chat. Solid bars are GoFr. The two dashed ones the agent adds itself: in-process there is no network call to trace, so the embedding and the generation step get named by hand. [next] Metrics: the local model shows up as provider kronk, next to every hosted model. [next] Health: the model is a key on the health endpoint. Tokens per second is an attribute on my own generate span, not a GoFr metric.',
     content: (step) => (
       <div className="h-full flex flex-col">
         <Header kicker="3 · The idea" title={<>Tracing, metrics, health from the interface. <Cyan>Two spans I added by hand.</Cyan></>} />
@@ -950,188 +950,6 @@ rows, err := c.SurrealDB.Query(c, query, nil)
     ),
   },
 
-  // 16 ─ Section: what fought back
-  {
-    id: 16, layout: 'grid', title: 'What fought back', steps: 3, speaker: 'A',
-    speakerNotes: 'That was the happy path. Three things fought back. One: the driver would not take my vector. [next] Two: search ranked everything correctly and scored all of it zero. [next] Three: the most expensive thing in the request had no span of its own.',
-    content: (step) => (
-      <div className="h-full flex flex-col">
-        <Header kicker="4 · What fought back" title={<>Three things <Cyan>fought back.</Cyan></>} />
-        <div className="grid grid-cols-3 gap-10 mt-6">
-          {[
-            ['01', 'The driver would not take a bound vector.'],
-            ['02', 'Every cosine score came back as 0.'],
-            ['03', 'Generation had no span of its own.'],
-          ].map(([n, t], i) => (
-            <Reveal key={n} show={step >= i}>
-              <Card className="h-[340px] flex flex-col justify-between">
-                <div className="font-mono font-bold text-[3rem]" style={{ color: COLORS.sky400 }}>{n}</div>
-                <div className="font-display font-semibold text-[2.3rem] leading-tight">{t}</div>
-              </Card>
-            </Reveal>
-          ))}
-        </div>
-      </div>
-    ),
-  },
-
-  // 17 ─ Fight 01
-  {
-    id: 17, layout: 'code', title: 'Fight 01: binding', steps: 2, speaker: 'A',
-    speakerNotes: 'First. The obvious query binds the vector as a parameter. The same float32 slice stores fine as a field, but bound into the cosine function the driver serialises it into a value the function rejects. [next] So the 768 floats get formatted into the query text by hand. It is safe here only because every character comes out of strconv.FormatFloat, never from a user.',
-    content: (step) => (
-      <div className="h-full flex flex-col">
-        <Header kicker="4 · What fought back · 01" title={<>You can't bind the query vector.<br /><Cyan>So 768 floats get formatted in by hand.</Cyan></>} />
-        <div className="grid grid-cols-[1fr_1.15fr] gap-12 items-start">
-          <div>
-            <Label color={COLORS.amber500}>✕ what you write first</Label>
-            <Terminal title="bound parameter" hideOutput fontSize={22}>
-              <Code code={`
-q := "... cosine(embedding, $q) ..."
-c.SurrealDB.Query(c, q,
-	map[string]any{"q": qvec})
-// rejected by the vector function
-`} />
-            </Terminal>
-          </div>
-          <Reveal show={step >= 1}>
-            <Label color={COLORS.sky300}>✓ what ships</Label>
-            <Terminal title="vector.go · floatLiteral" hideOutput fontSize={20}>
-              <Code focus={[4]} code={`
-func floatLiteral(v []float32) string {
-	parts := make([]string, len(v))
-	for i, f := range v {
-		parts[i] = strconv.FormatFloat(float64(f), 'f', 6, 32)
-	}
-	return "[" + strings.Join(parts, ",") + "]"
-}
-`} />
-            </Terminal>
-          </Reveal>
-        </div>
-        <Reveal show={step >= 1}>
-          <Caption><span style={{ color: COLORS.amber500 }}>⚠</span>&nbsp; Safe only because every character comes from <Mono className="text-white">strconv.FormatFloat</Mono>. <W>Never do this with user input.</W></Caption>
-        </Reveal>
-      </div>
-    ),
-  },
-
-  // 18 ─ Fight 02
-  {
-    id: 18, layout: 'code', title: 'Fight 02: zero scores', steps: 3, speaker: 'A',
-    speakerNotes: 'Second. Search worked, the ranking was right, and every score was zero. [next] The culprit is in my own framework. GoFr\'s SurrealDB datasource normalises numbers on the way out, and a float64 becomes an int. int of 0.792 is 0. It is still like that on development today, so that one is on me. [next] The workaround: ask SurrealDB for the score times ten thousand, rounded, so it survives as an integer, then divide in Go.',
-    content: (step) => (
-      <div className="h-full flex flex-col">
-        <Header kicker="4 · What fought back · 02" title={<>Every cosine score <Cyan>came back as 0.</Cyan></>} />
-        <div className="grid grid-cols-[420px_1fr] gap-12 items-start">
-          <Card className="text-center">
-            <Label>handbook · cosine</Label>
-            <div className="font-display font-bold text-[8rem] leading-none mt-6 transition-colors duration-500" style={{ color: step >= 2 ? COLORS.sky300 : COLORS.amber500 }}>
-              {step >= 2 ? '0.792' : '0'}
-            </div>
-            <div className="font-mono text-[1.2rem] mt-6" style={{ color: COLORS.slate400 }}>{step >= 2 ? 'scaled, then divided back' : 'ranked right, scored 0'}</div>
-          </Card>
-          <div className="space-y-8">
-            <Reveal show={step >= 1}>
-              <Label color={COLORS.amber500}>the cause · GoFr's own datasource</Label>
-              <Terminal title="datasource/surrealdb · convertValue · v0.3.4" hideOutput fontSize={26}>
-                <Code code={`
-case float64:
-	return int(val)   // int(0.792) == 0
-`} />
-              </Terminal>
-            </Reveal>
-            <Reveal show={step >= 2}>
-              <Label color={COLORS.sky300}>the workaround</Label>
-              <Terminal title="vector.go" hideOutput fontSize={23}>
-                <Code code={`
-"math::round(vector::similarity::cosine(embedding, %s) * 10000) AS score"
-out[i].Score /= 10000 // undo the integer scaling
-`} />
-              </Terminal>
-            </Reveal>
-          </div>
-        </div>
-      </div>
-    ),
-  },
-
-  // 19 ─ Fight 03
-  {
-    id: 19, layout: 'code', title: 'Fight 03: no span', steps: 3, speaker: 'A',
-    speakerNotes: 'Third, and the one I like most. Call a hosted model and your HTTP client gives you a span for the network call, for free. Go in-process and that span disappears. llm.chat was one fat bar with nothing inside it: the most expensive thing in the request had no name. [next] The fix is one span, opened around the call to Kronk, with the generation stats on it. [next] Now the bar has a child that explains it, and tokens per second sits on it.',
-    content: (step) => (
-      <div className="h-full flex flex-col">
-        <Header kicker="4 · What fought back · 03" title={<>In-process means no HTTP span.<br /><Cyan>Generation had no span of its own.</Cyan></>} />
-        <Card className="!py-7">
-          <div className="grid grid-cols-[160px_1fr] items-center">
-            <Label color={step >= 2 ? COLORS.sky300 : COLORS.amber500}>{step >= 2 ? 'after' : 'before'}</Label>
-            <Waterfall labelWidth={260} rows={step >= 2 ? [
-              { name: 'llm.chat', depth: 0, start: 0, width: 100, tone: 'gofr' },
-              { name: 'kronk.generate', depth: 1, start: 1, width: 98, tone: 'own', note: 'gen.tokens_per_sec' },
-            ] : [
-              { name: 'llm.chat', depth: 0, start: 0, width: 100, tone: 'gofr' },
-              { name: '(nothing)', depth: 1, start: 1, width: 98, tone: 'gap', note: 'where did the time go?' },
-            ]} />
-          </div>
-        </Card>
-        <Reveal show={step >= 1} className="mt-8">
-          <Terminal title="kronk.go · chatModel.Chat (trimmed)" hideOutput fontSize={23}>
-            <Code code={`
-genCtx, span := otel.Tracer("local-rag-agent").Start(ctx, "kronk.generate")
-resp, err := m.krn.Chat(genCtx, d)
-span.SetAttributes(attribute.Float64("gen.tokens_per_sec", resp.Usage.TokensPerSecond))
-span.End()
-`} />
-          </Terminal>
-        </Reveal>
-      </div>
-    ),
-  },
-
-  // 20 ─ The hole was upstream
-  {
-    id: 20, layout: 'comparison', title: 'Fixed upstream', steps: 2, speaker: 'A',
-    speakerNotes: 'And one hole was not in my code, it was in GoFr. Chat went through the LLM interface; embeddings had no path through it. So on every request the embedding step was invisible unless I hand-rolled a span, which is the kronk.embed you saw. [next] So I fixed the framework. Embedder is an optional capability; c.LLM().Embed gets the same span and metrics as Chat. It shipped in GoFr v1.60.0. The agent still pins v1.58, which is why you saw the hand-rolled span; moving it over is a small change.',
-    content: (step) => (
-      <div className="h-full flex flex-col">
-        <Header kicker="4 · What fought back · upstream" title={<>Embeddings had no path through the interface.<br /><Cyan>So I fixed the framework.</Cyan></>} />
-        <div className="grid grid-cols-2 gap-12 items-start">
-          <div>
-            <Label color={COLORS.amber500}>GoFr v1.58 · what the agent pins</Label>
-            <Terminal title="kronk.go · embedText (trimmed)" hideOutput fontSize={20}>
-              <Code code={`
-// embeddings don't go through c.LLM(),
-// so the span is hand-rolled
-ctx, span := otel.Tracer("local-rag-agent").
-	Start(ctx, "kronk.embed")
-defer span.End()
-resp, err := krn.Embeddings(ctx, model.D{"input": text})
-`} />
-            </Terminal>
-          </div>
-          <Reveal show={step >= 1}>
-            <Label color={COLORS.sky300}>GoFr v1.60.0 · #3757, #4108</Label>
-            <Terminal title="gofr.dev/pkg/gofr/ai · model.go" hideOutput fontSize={20}>
-              <Code focus={[6, 7]} code={`
-type Embedder interface {
-	Embed(ctx context.Context, input []string,
-		opts ...Option) (*EmbeddingResponse, error)
-}
-
-// span llm.embed, same metrics as Chat
-resp, err := c.LLM().Embed(c, []string{question})
-`} />
-            </Terminal>
-          </Reveal>
-        </div>
-        <Reveal show={step >= 1}>
-          <Caption>Any provider that implements <Mono className="text-white">Embedder</Mono> now gets <Mono className="text-white">llm.embed</Mono> and the same <Mono className="text-white">app_llm_*</Mono> metrics.</Caption>
-        </Reveal>
-      </div>
-    ),
-  },
-
   // 21 ─ Grounding
   {
     id: 21, layout: 'code', title: 'Grounding', steps: 2, speaker: 'A',
@@ -1228,7 +1046,7 @@ if len(hits) == 0 {
   // 24 ─ Takeaways
   {
     id: 24, layout: 'checklist', title: 'Takeaways', steps: 3, speaker: 'A',
-    speakerNotes: 'Three things to take home. One: you do not need to switch languages to ship LLM features. Everything tonight was Go. [next] Two: treat the model like any other dependency. Satisfy the interface and you inherit the observability you already trust. [next] Three: if a step is not in the trace, you cannot see it get slow. Twice today the most expensive step was invisible until I gave it a span.',
+    speakerNotes: 'Three things to take home. One: you do not need to switch languages to ship LLM features. Everything tonight was Go. [next] Two: treat the model like any other dependency. Satisfy the interface and you inherit the observability you already trust. [next] Three: if a step is not in the trace, you cannot see it get slow. The embedding and the generation step were invisible until they got a span of their own.',
     content: (step) => (
       <div className="h-full flex flex-col justify-center">
         <Kicker>Takeaways</Kicker>
