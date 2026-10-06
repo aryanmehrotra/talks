@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Services an AI can write and a team can run — Open Source India 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* GoFr's fonts, as gofr.dev loads them: Lexend (local, ss01) for display, Inter for text. */
+  @font-face { font-family: 'Lexend GoFr'; src: url('./brand/lexend.woff2') format('woff2'); font-weight: 100 900; font-display: swap; }
+  * { margin: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #0A101F; -webkit-font-smoothing: antialiased; }
+  #stage { position: absolute; left: 50%; top: 50%; width: 1920px; height: 1080px; transform-origin: 0 0; }
+  section { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden; font-feature-settings: "ss01"; }
+  section:not(.on) { display: none !important; }
+  aside { display: none; }
+  h1, h2, h3, p { font-weight: inherit; }
+  table { border-collapse: collapse; width: 100%; overflow: hidden; }
+  x-connector { display: block; position: relative; height: 3px; background: #38bdf8; }
+  x-connector::after { content: ''; position: absolute; right: -2px; top: -7px; border-left: 14px solid #38bdf8; border-top: 8px solid transparent; border-bottom: 8px solid transparent; }
+  #n { position: fixed; right: 16px; bottom: 10px; font: 13px Inter, sans-serif; color: #475569; }
+  @media print {
+    @page { size: 1920px 1080px; margin: 0; }
+    html, body { overflow: visible; height: auto; }
+    #stage { position: static; transform: none !important; width: auto; height: auto; }
+    section { position: relative; page-break-after: always; break-after: page; }
+    section:not(.on) { display: flex !important; }
+    #n { display: none; }
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+<section id="cover" data-transition="fade" style="background:#0f172a">
+  <img src="./brand/blur-cyan.png" alt="" style="position:absolute; top:0; left:0; width:900px; height:900px; opacity:0.3">
+  <img src="./brand/blur-indigo.png" alt="" style="position:absolute; right:0; bottom:0; width:860px; height:860px; opacity:0.28">
+  <img src="./brand/hero-background.svg" alt="" style="position:absolute; top:0; right:0; width:675px; height:1080px; opacity:0.3">
+  <img src="./brand/complete-gorg-logo.svg" alt="GoFr mascot: a gopher in a ninja outfit" id="e4-1ftwghs" style="position:absolute; top:300px; right:128px; width:400px; height:458px; object-fit:contain">
+  <div id="e5-1ftwghs" style="position:absolute; right:128px; bottom:64px; left:128px; display:flex; flex-direction:row; align-items:center; justify-content:space-between">
+    <p style="font-family:Inter, Arial, sans-serif; font-size:24px; color:#94a3b8">Aryan Mehrotra</p>
+    <p style="font-family:Inter, Arial, sans-serif; font-size:24px; color:#94a3b8">gofr.dev</p>
+  </div>
+  <p id="e203dcb8" style="position:absolute; top:259px; left:128px; width:1664px; font-family:'Lexend GoFr', Arial, sans-serif; font-size:24px; font-weight:600; letter-spacing:1.2px; text-transform:uppercase; color:#94a3b8">Open Source India 2026</p>
+  <h1 id="9ce34ef3" style="position:absolute; top:332px; left:128px; width:1120px; font-family:'Lexend GoFr', Arial, sans-serif; font-size:104px; font-weight:400; line-height:1.05; letter-spacing:-2.6px; color:#7dd3fc; background:linear-gradient(90deg, #c7d2fe 0%, #38bdf8 50%, #c7d2fe 100%); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent">Services an AI can write and a team can run</h1>
+  <p id="b42c12dc" style="position:absolute; top:695.28px; left:128px; width:1000px; font-family:Inter, Arial, sans-serif; font-size:32px; line-height:1.4; color:#cbd5e1"><b>GoFr: An Opinionated Go Framework</b><br>For accelerated microservice development</p>
+  <aside>10 minutes. Open with the question, not the framework: agents now write the first draft of most services. The talk is about what has to be true for a team to run that draft in production. I maintain GoFr; everything on these slides is in the v1.62.0 release.</aside>
+</section>
+<section id="now" data-transition="fade" style="background:#0f172a;color:#f8fafc;font-family:'Inter', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:56px">
+<img src="./brand/blur-cyan.png" alt="" style="position:absolute;left:0px;top:0px;width:900px;height:900px;object-fit:cover;opacity:0.3">
+<img src="./brand/blur-indigo.png" alt="" style="position:absolute;right:0px;bottom:0px;width:860px;height:860px;object-fit:cover;opacity:0.28">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'Lexend GoFr', 'Inter', Arial, sans-serif;font-size:24px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:#94a3b8">Where we are</p>
+<h2 style="font-family:'Lexend GoFr', 'Inter', Arial, sans-serif;font-size:72px;font-weight:700;line-height:1.1;letter-spacing:-1.8px">AI already writes the code</h2>
+</div>
+<div style="display:flex;gap:32px">
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;background:#1e293b;border:1px solid #334155;border-radius:24px;padding:48px">
+<p style="font-family:'Lexend GoFr', 'Inter', Arial, sans-serif;font-size:120px;font-weight:600;line-height:1.05;letter-spacing:-3px;color:#38bdf8">75%</p>
+<h3 style="font-size:32px;font-weight:600;line-height:1.3">of Google's new code is AI-generated</h3>
+<p style="font-size:24px;line-height:1.4;color:#94a3b8">Up from 25% in 2024. Sundar Pichai, April 2026.</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;background:#1e293b;border:1px solid #334155;border-radius:24px;padding:48px">
+<p style="font-family:'Lexend GoFr', 'Inter', Arial, sans-serif;font-size:120px;font-weight:600;line-height:1.05;letter-spacing:-3px;color:#38bdf8">84%</p>
+<h3 style="font-size:32px;font-weight:600;line-height:1.3">of developers use or plan to use AI tools</h3>
+<p style="font-size:24px;line-height:1.4;color:#94a3b8">Stack Overflow Developer Survey 2025, 49,000+ respondents.</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;background:#1e293b;border:1px solid #334155;border-radius:24px;padding:48px">
+<p style="font-family:'Lexend GoFr', 'Inter', Arial, sans-serif;font-size:120px;font-weight:600;line-height:1.05;letter-spacing:-3px;color:#38bdf8">53%</p>
+<h3 style="font-size:32px;font-weight:600;line-height:1.3">of Go developers use AI tools every day</h3>
+<p style="font-size:24px;line-height:1.4;color:#94a3b8">Go Developer Survey 2025, published January 2026.</p>
+</div>
+</div>
+<div style="position:absolute;left:128px;right:128px;bottom:64px;display:flex;justify-content:space-between;align-items:center">
+<p style="font-size:24px;color:#94a3b8">Sources: Semafor, Stack Overflow, go.dev/blog/survey2025</p>
+<p style="font-size:24px;color:#94a3b8">gofr.dev</p>
+</div>
+<aside>Three numbers, thirty seconds. The Google figure is Google's own, reported by Semafor from a press conference in New Delhi; other companies report lower numbers and nobody publishes the method. The direction is not in dispute. The Go number matters most for this room: half of Go developers already use these tools daily.</aside>
+</section>
+<section id="gap" data-transition="fade" style="background:#0f172a;color:#f8fafc;font-family:'Inter', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:56px">
+<img src="./brand/blur-cyan.png" alt="" style="position:absolute;left:0px;top:0px;width:900px;height:900px;object-fit:cover;opacity:0.3">
+<img src="./brand/blur-indigo.png" alt="" style="position:absolute;right:0px;bottom:0px;width:860px;height:860px;object-fit:cover;opacity:0.28">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'Lexend GoFr', 'Inter', Arial, sans-serif;font-size:24px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:#94a3b8">What it costs</p>
+<h2 style="font-family:'Lexend GoFr', 'Inter', Arial, sans-serif;font-size:72px;font-weight:700;line-height:1.1;letter-spacing:-1.8px">The bill arrives after the merge</h2>
+</div>
+<div style="display:flex;gap:32px">
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;background:#1e293b;border:1px solid #334155;border-radius:24px;padding:40px">
+<p style="font-family:'Lexend GoFr', 'Inter', Arial, sans-serif;font-size:120px;font-weight:600;line-height:1.05;letter-spacing:-3px;color:#f59e0b">56%</p>
+<h3 style="font-size:32px;font-weight:600;line-height:1.3">of AI-written code passes security tests</h3>
+<p style="font-size:24px;line-height:1.4;color:#94a3b8">No better than a year ago. It compiles almost every time.</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;background:#1e293b;border:1px solid #334155;border-radius:24px;padding:40px">
+<p style="font-family:'Lexend GoFr', 'Inter', Arial, sans-serif;font-size:120px;font-weight:600;line-height:1.05;letter-spacing:-3px;color:#f59e0b">5x</p>
+<h3 style="font-size:32px;font-weight:600;line-height:1.3">longer median review time</h3>
+<p style="font-size:24px;line-height:1.4;color:#94a3b8">Pull requests are 51% larger on high-AI teams.</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;background:#1e293b;border:1px solid #334155;border-radius:24px;padding:40px">
+<p style="font-family:'Lexend GoFr', 'Inter', Arial, sans-serif;font-size:120px;font-weight:600;line-height:1.05;letter-spacing:-3px;color:#f59e0b">3x</p>
+<h3 style="font-size:32px;font-weight:600;line-height:1.3">more incidents per pull request</h3>
+<p style="font-size:24px;line-height:1.4;color:#94a3b8">Against 34% more tasks delivered.</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;background:#1e293b;border:1px solid #334155;border-radius:24px;padding:40px">
+<p style="font-family:'Lexend GoFr', 'Inter', Arial, sans-serif;font-size:120px;font-weight:600;line-height:1.05;letter-spacing:-3px;color:#f59e0b">46%</p>
+<h3 style="font-size:32px;font-weight:600;line-height:1.3">of developers distrust AI accuracy</h3>
+<p style="font-size:24px;line-height:1.4;color:#94a3b8">33% trust it. 3% trust it highly.</p>
+</div>
+</div>
+<div style="position:absolute;left:128px;right:128px;bottom:64px;display:flex;justify-content:space-between;align-items:center">
+<p style="font-size:24px;color:#94a3b8">Sources: Veracode 2026, Faros AI 2026 (22,000 developers), Stack Overflow 2025</p>
+<p style="font-size:24px;color:#94a3b8">gofr.dev</p>
+</div>
+<aside>Writing got cheap; reviewing and running did not. Veracode tested 100+ models: syntax is near 100%, security is stuck at 56%. Faros compared high-AI-adoption teams with low-adoption teams across 22,000 developers: 33.7% more tasks, but review time 5x and incidents per PR 3x. These are vendor studies, so say so if asked. The point: the missing parts are the boring production parts.</aside>
+</section>
+<section id="idea" data-transition="fade" style="background:#38bdf8;color:#0f172a;font-family:'Inter', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;justify-content:center;gap:56px">
+<p style="font-family:'Lexend GoFr', 'Inter', Arial, sans-serif;font-size:24px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:#0f172a">The idea</p>
+<h2 style="font-family:'Lexend GoFr', 'Inter', Arial, sans-serif;font-size:96px;font-weight:600;line-height:1.08;letter-spacing:-2.4px;width:1500px">Put the production parts in the framework, where no prompt has to remember them.</h2>
+<div style="display:flex;flex-direction:column;gap:12px;background:#0f172a;border-radius:24px;padding:40px;width:1400px">
+<p style="font-family:monospace;font-size:30px;line-height:1.45;color:#f8fafc">Don't manually wire OpenTelemetry, Prometheus, or structured logging. gofr.New() does it.</p>
+<p style="font-size:24px;line-height:1.4;color:#94a3b8">Rule 4 of GoFr's guide for AI coding assistants, gofr.dev/AGENTS.md</p>
+</div>
+<div style="position:absolute;left:128px;right:128px;bottom:64px;display:flex;justify-content:space-between;align-items:center">
+<p style="font-size:24px;color:#0f172a">GoFr v1.62.0</p>
+<p style="font-size:24px;color:#0f172a">gofr.dev</p>
+</div>
+<aside>This is the whole argument. An agent will write a handler correctly and forget tracing, health checks, retries and graceful shutdown, because nothing fails when they are missing. If the framework owns those, there is nothing to forget and nothing to review. GoFr ships a guide written for coding agents; this line is rule 4, quoted exactly.</aside>
+</section>
+<section id="code" data-transition="fade" style="background:#0f172a;color:#f8fafc;font-family:'Inter', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<img src="./brand/blur-cyan.png" alt="" style="position:absolute;left:0px;top:0px;width:900px;height:900px;object-fit:cover;opacity:0.3">
+<img src="./brand/blur-indigo.png" alt="" style="position:absolute;right:0px;bottom:0px;width:860px;height:860px;object-fit:cover;opacity:0.28">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'Lexend GoFr', 'Inter', Arial, sans-serif;font-size:24px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:#94a3b8">The whole service</p>
+<h2 style="font-family:'Lexend GoFr', 'Inter', Arial, sans-serif;font-size:72px;font-weight:700;line-height:1.1;letter-spacing:-1.8px">One handler shape, the rest included</h2>
+</div>
+<div style="display:flex;gap:48px;align-items:start">
+<div style="width:860px;display:flex;flex-direction:column;background:#0A101F;border:1px solid #334155;border-radius:24px;padding:36px 40px">
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#f8fafc">func main() {</p>
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#f8fafc">&#160;&#160;&#160;&#160;app := gofr.New()</p>
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#f8fafc">&#160;&#160;&#160;&#160;app.GET(<span style="color:#7dd3fc">"/orders/{id}"</span>, getOrder)</p>
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#f8fafc">&#160;&#160;&#160;&#160;app.Run()</p>
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#f8fafc">}</p>
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#f8fafc">&#160;</p>
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#f8fafc">func getOrder(c *gofr.Context) (any, error) {</p>
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#f8fafc">&#160;&#160;&#160;&#160;var status string</p>
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#f8fafc">&#160;&#160;&#160;&#160;err := c.SQL.QueryRowContext(c,</p>
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#f8fafc">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span style="color:#7dd3fc">"SELECT status FROM orders WHERE id=?"</span>,</p>
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#f8fafc">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;c.PathParam(<span style="color:#7dd3fc">"id"</span>)).Scan(&amp;status)</p>
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#f8fafc">&#160;&#160;&#160;&#160;return status, err</p>
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#f8fafc">}</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:22px">
+<h3 style="font-size:32px;font-weight:600;line-height:1.3;color:#38bdf8">Running, and nobody wrote it</h3>
+<p style="font-size:26px;line-height:1.35;color:#cbd5e1"><b>Traces.</b> OpenTelemetry spans for the request and the query; one env var ships them.</p>
+<p style="font-size:26px;line-height:1.35;color:#cbd5e1"><b>Metrics.</b> Prometheus at /metrics on port 2121.</p>
+<p style="font-size:26px;line-height:1.35;color:#cbd5e1"><b>Logs.</b> JSON lines carrying the trace_id.</p>
+<p style="font-size:26px;line-height:1.35;color:#cbd5e1"><b>Health.</b> /.well-known/health and /.well-known/alive.</p>
+<p style="font-size:26px;line-height:1.35;color:#cbd5e1"><b>Profiling.</b> pprof on the metrics port.</p>
+<p style="font-size:26px;line-height:1.35;color:#cbd5e1"><b>Shutdown.</b> Graceful on SIGTERM, 30 seconds by default.</p>
+</div>
+</div>
+<div style="position:absolute;left:128px;right:128px;bottom:64px;display:flex;justify-content:space-between;align-items:center">
+<p style="font-size:24px;color:#94a3b8">The same signature serves HTTP, gRPC, GraphQL, WebSocket, cron and CLI</p>
+<p style="font-size:24px;color:#94a3b8">gofr.dev</p>
+</div>
+<aside>Thirteen lines. The handler signature is the only thing an agent, or a new hire, has to learn: context in, value and error out. Everything on the right is on by default from gofr.New(). Tracing is created automatically and exported when TRACE_EXPORTER is set (otlp, jaeger, zipkin or gcp). For a reviewer, this means every service in the company has the same shape.</aside>
+</section>
+<section id="ai" data-transition="fade" style="background:#0f172a;color:#f8fafc;font-family:'Inter', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<img src="./brand/blur-cyan.png" alt="" style="position:absolute;left:0px;top:0px;width:900px;height:900px;object-fit:cover;opacity:0.3">
+<img src="./brand/blur-indigo.png" alt="" style="position:absolute;right:0px;bottom:0px;width:860px;height:860px;object-fit:cover;opacity:0.28">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'Lexend GoFr', 'Inter', Arial, sans-serif;font-size:24px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:#94a3b8">AI inside the service</p>
+<h2 style="font-family:'Lexend GoFr', 'Inter', Arial, sans-serif;font-size:72px;font-weight:700;line-height:1.1;letter-spacing:-1.8px">The LLM is one more datasource</h2>
+</div>
+<div style="display:flex;gap:48px;align-items:start">
+<div style="width:860px;display:flex;flex-direction:column;background:#0A101F;border:1px solid #334155;border-radius:24px;padding:36px 40px">
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#f8fafc">app.AddLLM(&amp;llm.Client{</p>
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#f8fafc">&#160;&#160;&#160;&#160;Provider: llm.Groq,</p>
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#f8fafc">&#160;&#160;&#160;&#160;Model:&#160;&#160;&#160;&#160;<span style="color:#7dd3fc">"llama-3.3-70b-versatile"</span>,</p>
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#f8fafc">})</p>
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#f8fafc">&#160;</p>
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#f8fafc">func ask(c *gofr.Context) (any, error) {</p>
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#f8fafc">&#160;&#160;&#160;&#160;return c.LLM().Generate(c, prompt)</p>
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#f8fafc">}</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:24px">
+<div style="display:flex;flex-direction:column;gap:8px;background:#1e293b;border:1px solid #334155;border-radius:20px;padding:28px 32px">
+<h3 style="font-size:32px;font-weight:600;line-height:1.3;color:#38bdf8">Traced</h3>
+<p style="font-size:26px;line-height:1.35;color:#cbd5e1">Every call is a span in the request's trace.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;background:#1e293b;border:1px solid #334155;border-radius:20px;padding:28px 32px">
+<h3 style="font-size:32px;font-weight:600;line-height:1.3;color:#38bdf8">Metered</h3>
+<p style="font-size:26px;line-height:1.35;color:#cbd5e1">Requests and tokens per request are Prometheus metrics.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;background:#1e293b;border:1px solid #334155;border-radius:20px;padding:28px 32px">
+<h3 style="font-size:32px;font-weight:600;line-height:1.3;color:#38bdf8">Health-checked</h3>
+<p style="font-size:26px;line-height:1.35;color:#cbd5e1">The model counts toward service health, like the database.</p>
+</div>
+</div>
+</div>
+<div style="position:absolute;left:128px;right:128px;bottom:64px;display:flex;justify-content:space-between;align-items:center">
+<p style="font-size:24px;color:#94a3b8">OpenAI, Groq, DeepSeek, Together, Ollama, or your own ai.Model. Chat, stream, embed, tools.</p>
+<p style="font-size:24px;color:#94a3b8">gofr.dev</p>
+</div>
+<aside>Same idea applied to the model. You register it once and reach it through the context, exactly like SQL or Redis. In return the call is traced, metered (app_llm_request_count, app_llm_tokens_per_request) and part of the health check. The built-in client speaks the OpenAI-compatible API; anything else, including a model running in-process, plugs in by implementing ai.Model. There is no built-in vector store and no built-in agent loop, on purpose.</aside>
+</section>
+<section id="mcp" data-transition="fade" style="background:#0f172a;color:#f8fafc;font-family:'Inter', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;justify-content:space-between;gap:44px">
+<img src="./brand/blur-cyan.png" alt="" style="position:absolute;left:0px;top:0px;width:900px;height:900px;object-fit:cover;opacity:0.3">
+<img src="./brand/blur-indigo.png" alt="" style="position:absolute;right:0px;bottom:0px;width:860px;height:860px;object-fit:cover;opacity:0.28">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'Lexend GoFr', 'Inter', Arial, sans-serif;font-size:24px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:#94a3b8">Agents as clients</p>
+<h2 style="font-family:'Lexend GoFr', 'Inter', Arial, sans-serif;font-size:72px;font-weight:700;line-height:1.1;letter-spacing:-1.8px">One line makes your API agent tools</h2>
+</div>
+<div style="display:flex;align-items:center;gap:20px">
+<div style="width:300px;display:flex;flex-direction:column;gap:6px;background:#1e293b;border:1px solid #334155;border-radius:20px;padding:28px 32px">
+<h3 style="font-size:32px;font-weight:600;line-height:1.3">Agent</h3>
+<p style="font-size:24px;line-height:1.35;color:#94a3b8">Any MCP client</p>
+</div>
+<x-connector style="width:72px;color:#38bdf8;border-width:3px"></x-connector>
+<div style="flex:1;display:flex;flex-direction:column;gap:6px;background:#0A101F;border:2px solid #38bdf8;border-radius:20px;padding:28px 32px">
+<p style="font-family:monospace;font-size:32px;font-weight:600;line-height:1.3;white-space:nowrap;color:#7dd3fc">app.EnableMCP()</p>
+<p style="font-size:24px;line-height:1.35;color:#94a3b8">MCP server on 127.0.0.1:8200</p>
+</div>
+<x-connector style="width:72px;color:#38bdf8;border-width:3px"></x-connector>
+<div style="width:420px;display:flex;flex-direction:column;gap:6px;background:#1e293b;border:1px solid #334155;border-radius:20px;padding:28px 32px">
+<h3 style="font-size:32px;font-weight:600;line-height:1.3">Your handlers</h3>
+<p style="font-size:24px;line-height:1.35;color:#94a3b8">Same router, same middleware</p>
+</div>
+</div>
+<div style="display:flex;gap:32px">
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;border-top:3px solid #38bdf8;padding:24px 0px 0px 0px">
+<h3 style="font-size:32px;font-weight:600;line-height:1.3">Read-only</h3>
+<p style="font-size:26px;line-height:1.35;color:#cbd5e1">Only GET, HEAD, OPTIONS and QUERY routes become tools. Writes are never exposed.</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;border-top:3px solid #38bdf8;padding:24px 0px 0px 0px">
+<h3 style="font-size:32px;font-weight:600;line-height:1.3">Local by default</h3>
+<p style="font-size:26px;line-height:1.35;color:#cbd5e1">It listens on loopback, on its own port, and you can exclude routes.</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;border-top:3px solid #38bdf8;padding:24px 0px 0px 0px">
+<h3 style="font-size:32px;font-weight:600;line-height:1.3">Same rules</h3>
+<p style="font-size:26px;line-height:1.35;color:#cbd5e1">Tool calls run through the real router, with the caller's headers forwarded.</p>
+</div>
+</div>
+<div style="position:absolute;left:128px;right:128px;bottom:64px;display:flex;justify-content:space-between;align-items:center">
+<p style="font-size:24px;color:#94a3b8">MCP is a Linux Foundation project (Agentic AI Foundation) since December 2025</p>
+<p style="font-size:24px;color:#94a3b8">gofr.dev</p>
+</div>
+<aside>The other direction: agents calling your service. MCP is the open protocol for that, now governed under the Linux Foundation, with AWS, Anthropic, Google, Microsoft and OpenAI as members. In GoFr it is one line. The defaults are the safe ones: read-only routes, loopback, port 8200, and calls go through the same router so auth middleware still applies. It implements tools only (initialize, tools/list, tools/call), over Streamable HTTP.</aside>
+</section>
+<section id="demo" data-transition="fade" style="background:#0A101F;color:#f8fafc;font-family:'Inter', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<img src="./brand/blur-indigo.png" alt="" style="position:absolute;right:0px;bottom:0px;width:860px;height:860px;object-fit:cover;opacity:0.28">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'Lexend GoFr', 'Inter', Arial, sans-serif;font-size:24px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:#38bdf8">Live demo</p>
+<h2 style="font-family:'Lexend GoFr', 'Inter', Arial, sans-serif;font-size:72px;font-weight:700;line-height:1.1;letter-spacing:-1.8px">One service, three requests</h2>
+</div>
+<div style="display:flex;flex-direction:column;gap:32px">
+<div style="display:flex;align-items:center;gap:36px;background:#0f172a;border:1px solid #334155;border-radius:20px;padding:48px 40px">
+<p style="font-family:'Lexend GoFr', 'Inter', Arial, sans-serif;font-size:44px;font-weight:600;width:48px;color:#38bdf8">1</p>
+<p style="font-family:monospace;font-size:26px;line-height:1.4;width:840px;white-space:nowrap;color:#7dd3fc">curl localhost:8000/inventory/A1</p>
+<p style="flex:1;font-size:30px;line-height:1.35;color:#cbd5e1">A trace and a metric appear. Nobody asked for them.</p>
+</div>
+<div style="display:flex;align-items:center;gap:36px;background:#0f172a;border:1px solid #334155;border-radius:20px;padding:48px 40px">
+<p style="font-family:'Lexend GoFr', 'Inter', Arial, sans-serif;font-size:44px;font-weight:600;width:48px;color:#38bdf8">2</p>
+<p style="font-family:monospace;font-size:26px;line-height:1.4;width:840px;white-space:nowrap;color:#7dd3fc">curl -X POST localhost:8000/ask -d '{"prompt":"..."}'</p>
+<p style="flex:1;font-size:30px;line-height:1.35;color:#cbd5e1">The LLM call is a span in the same trace, tokens counted.</p>
+</div>
+<div style="display:flex;align-items:center;gap:36px;background:#0f172a;border:1px solid #334155;border-radius:20px;padding:48px 40px">
+<p style="font-family:'Lexend GoFr', 'Inter', Arial, sans-serif;font-size:44px;font-weight:600;width:48px;color:#38bdf8">3</p>
+<p style="font-family:monospace;font-size:26px;line-height:1.4;width:840px;white-space:nowrap;color:#7dd3fc">MCP client -> localhost:8200</p>
+<p style="flex:1;font-size:30px;line-height:1.35;color:#cbd5e1">The agent finds /inventory as a tool and calls it.</p>
+</div>
+</div>
+<div style="position:absolute;left:128px;right:128px;bottom:64px;display:flex;justify-content:space-between;align-items:center">
+<p style="font-size:24px;color:#94a3b8">Code: examples/using-ai in github.com/gofr-dev/gofr</p>
+<p style="font-size:24px;color:#94a3b8">gofr.dev</p>
+</div>
+<aside>Two minutes, no more. The service is examples/using-ai from the GoFr repo: 132 lines, one inventory endpoint, one /ask endpoint, AddLLM and EnableMCP. Have the trace UI and the terminal side by side before walking on. Step 1 shows default observability. Step 2 shows the model call inside the same trace. Step 3 shows an agent discovering and calling the GET route. Fallback if the network fails: a recorded run of the same three steps.</aside>
+</section>
+<section id="company" data-transition="fade" style="background:#0f172a;color:#f8fafc;font-family:'Inter', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:44px">
+<img src="./brand/blur-cyan.png" alt="" style="position:absolute;left:0px;top:0px;width:900px;height:900px;object-fit:cover;opacity:0.3">
+<img src="./brand/blur-indigo.png" alt="" style="position:absolute;right:0px;bottom:0px;width:860px;height:860px;object-fit:cover;opacity:0.28">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'Lexend GoFr', 'Inter', Arial, sans-serif;font-size:24px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:#94a3b8">For the company</p>
+<h2 style="font-family:'Lexend GoFr', 'Inter', Arial, sans-serif;font-size:72px;font-weight:700;line-height:1.1;letter-spacing:-1.8px">What a team gets back</h2>
+</div>
+<table style="font-size:30px;color:#cbd5e1;background:#1e293b;border:1px solid #334155;border-radius:20px">
+<tr style="background:#0A101F"><th style="width:20%;text-align:left;color:#94a3b8;padding:22px 28px">Pressure</th><th style="width:36%;text-align:left;color:#94a3b8;padding:22px 28px">Without a framework</th><th style="width:44%;text-align:left;color:#38bdf8;padding:22px 28px">With GoFr</th></tr>
+<tr><td style="color:#f8fafc;padding:22px 28px">Review load</td><td style="padding:22px 28px">Each generated service is wired its own way</td><td style="padding:22px 28px">One handler signature for HTTP, gRPC, cron and CLI</td></tr>
+<tr><td style="color:#f8fafc;padding:22px 28px">Incidents</td><td style="padding:22px 28px">Tracing and health checks added after the outage</td><td style="padding:22px 28px">Traces, metrics, logs and health from gofr.New()</td></tr>
+<tr><td style="color:#f8fafc;padding:22px 28px">AI spend</td><td style="padding:22px 28px">Token use is invisible until the invoice</td><td style="padding:22px 28px">Tokens per request is a metric from the first call</td></tr>
+<tr><td style="color:#f8fafc;padding:22px 28px">Integrations</td><td style="padding:22px 28px">A different client and setup per store</td><td style="padding:22px 28px">30+ datasources and brokers through one context</td></tr>
+<tr><td style="color:#f8fafc;padding:22px 28px">Lock-in</td><td style="padding:22px 28px">A vendor SDK in every service</td><td style="padding:22px 28px">Apache-2.0, standard net/http, OpenTelemetry</td></tr>
+</table>
+<div style="position:absolute;left:128px;right:128px;bottom:64px;display:flex;justify-content:space-between;align-items:center">
+<p style="font-size:24px;color:#94a3b8">20,800+ GitHub stars, 160+ contributors, a release every two to three weeks</p>
+<p style="font-size:24px;color:#94a3b8">gofr.dev</p>
+</div>
+<aside>Translate the demo into what a manager cares about. Review: one shape means a reviewer reads business logic, not plumbing. Incidents: the production parts exist on day one. AI spend: tokens per request is a metric you can alert on. Integrations: SQL (MySQL, Postgres, SQLite, CockroachDB), Redis, Mongo, Cassandra, ClickHouse, Kafka, NATS, SQS, S3 and more through the same context. Lock-in: it is Apache-2.0 and built on standard net/http and OpenTelemetry. Releases: v1.60.0 on 31 Aug, v1.61.0 on 17 Sep, v1.62.0 on 1 Oct 2026.</aside>
+</section>
+<section id="features" data-transition="fade" style="background:#0f172a;color:#f8fafc;font-family:'Inter', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;justify-content:space-between;gap:40px">
+<img src="./brand/blur-cyan.png" alt="" style="position:absolute;left:0px;top:0px;width:900px;height:900px;object-fit:cover;opacity:0.3">
+<img src="./brand/blur-indigo.png" alt="" style="position:absolute;right:0px;bottom:0px;width:860px;height:860px;object-fit:cover;opacity:0.28">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'Lexend GoFr', 'Inter', Arial, sans-serif;font-size:24px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:#94a3b8">The takeaway</p>
+<h2 style="font-family:'Lexend GoFr', 'Inter', Arial, sans-serif;font-size:72px;font-weight:700;line-height:1.1;letter-spacing:-1.8px">Everything in the box</h2>
+</div>
+<div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:24px">
+<div style="display:flex;flex-direction:column;gap:10px;background:#1e293b;border:1px solid #334155;border-radius:20px;padding:28px 30px">
+<h3 style="font-size:32px;font-weight:600;line-height:1.3;color:#38bdf8">Serve</h3>
+<p style="font-size:24px;line-height:1.4;color:#cbd5e1">HTTP, gRPC, GraphQL, WebSocket, cron jobs, CLI apps, CRUD from a struct</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:10px;background:#1e293b;border:1px solid #334155;border-radius:20px;padding:28px 30px">
+<h3 style="font-size:32px;font-weight:600;line-height:1.3;color:#38bdf8">Data</h3>
+<p style="font-size:24px;line-height:1.4;color:#cbd5e1">MySQL, Postgres, SQLite, Redis, Mongo, Cassandra, ClickHouse and more, with migrations</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:10px;background:#1e293b;border:1px solid #334155;border-radius:20px;padding:28px 30px">
+<h3 style="font-size:32px;font-weight:600;line-height:1.3;color:#38bdf8">Messaging</h3>
+<p style="font-size:24px;line-height:1.4;color:#cbd5e1">Kafka, NATS, Google Pub/Sub, MQTT, SQS, Event Hubs, Redis</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:10px;background:#1e293b;border:1px solid #334155;border-radius:20px;padding:28px 30px">
+<h3 style="font-size:32px;font-weight:600;line-height:1.3;color:#38bdf8">Files</h3>
+<p style="font-size:24px;line-height:1.4;color:#cbd5e1">Local disk, S3, GCS, Azure, FTP and SFTP behind one file API</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:10px;background:#1e293b;border:1px solid #334155;border-radius:20px;padding:28px 30px">
+<h3 style="font-size:32px;font-weight:600;line-height:1.3;color:#38bdf8">Observe</h3>
+<p style="font-size:24px;line-height:1.4;color:#cbd5e1">Traces, metrics, JSON logs, health endpoints, pprof, live log-level change</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:10px;background:#1e293b;border:1px solid #334155;border-radius:20px;padding:28px 30px">
+<h3 style="font-size:32px;font-weight:600;line-height:1.3;color:#38bdf8">Secure</h3>
+<p style="font-size:24px;line-height:1.4;color:#cbd5e1">Basic auth, API keys, OAuth with JWT, RBAC, rate limiting, CORS</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:10px;background:#1e293b;border:1px solid #334155;border-radius:20px;padding:28px 30px">
+<h3 style="font-size:32px;font-weight:600;line-height:1.3;color:#38bdf8">Call out</h3>
+<p style="font-size:24px;line-height:1.4;color:#cbd5e1">HTTP client with circuit breaker, retry, rate limit and health checks</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:10px;background:#0A101F;border:2px solid #38bdf8;border-radius:20px;padding:28px 30px">
+<h3 style="font-size:32px;font-weight:600;line-height:1.3;color:#7dd3fc">AI</h3>
+<p style="font-size:24px;line-height:1.4;color:#cbd5e1">LLM datasource, streaming, embeddings, tool calls, MCP server</p>
+</div>
+</div>
+<div style="position:absolute;left:128px;right:128px;bottom:64px;display:flex;justify-content:space-between;align-items:center">
+<p style="font-size:24px;color:#94a3b8">Also: graceful shutdown, Swagger UI, test mocks. All in GoFr v1.62.0, Apache-2.0.</p>
+<p style="font-size:24px;color:#94a3b8">gofr.dev</p>
+</div>
+<aside>The slide to photograph. Do not read it out: say "eight boxes, one import" and point at two. Serve: every entry point uses the same handler. Data, Messaging and Files: 30+ integrations reached through the context. Observe and Secure: on by default or one line each. Call out: resilience options for calling other services. AI: the two slides you just saw. Pause here for five seconds so people can take the picture.</aside>
+</section>
+<section id="close" data-transition="fade" style="background:#0f172a;color:#f8fafc;font-family:'Inter', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;justify-content:center;gap:48px">
+<img src="./brand/blur-cyan.png" alt="" style="position:absolute;left:0px;top:0px;width:900px;height:900px;object-fit:cover;opacity:0.3">
+<img src="./brand/blur-indigo.png" alt="" style="position:absolute;right:0px;bottom:0px;width:860px;height:860px;object-fit:cover;opacity:0.28">
+<img src="./brand/hero-background.svg" alt="" style="position:absolute;right:0px;top:0px;width:675px;height:1080px;object-fit:cover;opacity:0.3">
+<p style="font-family:'Lexend GoFr', 'Inter', Arial, sans-serif;font-size:24px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:#94a3b8">Start tonight</p>
+<h2 style="font-family:'Lexend GoFr', 'Inter', Arial, sans-serif;font-size:96px;font-weight:400;line-height:1.08;letter-spacing:-2.4px;width:1120px;background:linear-gradient(to right, #c7d2fe, #38bdf8, #c7d2fe);background-clip:text;-webkit-text-fill-color:transparent;color:#7dd3fc">Give your agent a framework, then review less</h2>
+<div style="display:flex;flex-direction:column;gap:20px;width:1120px">
+<p style="font-size:32px;line-height:1.4;color:#cbd5e1"><b>gofr.dev</b>: docs and quick start</p>
+<p style="font-size:32px;line-height:1.4;color:#cbd5e1"><b>github.com/gofr-dev/gofr</b>: the code, Apache-2.0</p>
+<p style="font-size:32px;line-height:1.4;color:#cbd5e1"><b>gofr.dev/AGENTS.md</b>: hand this to your coding assistant</p>
+</div>
+<img src="./brand/complete-gorg-logo.svg" alt="GoFr mascot: a gopher in a ninja outfit" style="position:absolute;right:128px;top:300px;width:400px;height:458px;object-fit:contain">
+<div style="position:absolute;left:128px;right:128px;bottom:64px;display:flex;justify-content:space-between;align-items:center">
+<p style="font-size:24px;color:#94a3b8">Aryan Mehrotra · x.com/_aryanmehrotra</p>
+<p style="font-size:24px;color:#94a3b8">Open Source India 2026</p>
+</div>
+<aside>One action for the room: open gofr.dev/AGENTS.md, give it to whichever assistant you use, and ask it for a service. Then look at what you did not have to review.</aside>
+</section>
+</div>
+<div id="n"></div>
+<script>
+  // Arrow keys, space, PageUp/PageDown or a click move between slides; the URL hash keeps your place.
+  const slides = [...document.querySelectorAll('section')], stage = document.getElementById('stage'), n = document.getElementById('n');
+  let i = Math.min(Math.max((parseInt(location.hash.slice(1), 10) || 1) - 1, 0), slides.length - 1);
+  const show = () => { slides.forEach((s, k) => s.classList.toggle('on', k === i)); n.textContent = (i + 1) + ' / ' + slides.length; history.replaceState(null, '', '#' + (i + 1)); };
+  const go = d => { i = Math.min(Math.max(i + d, 0), slides.length - 1); show(); };
+  const fit = () => { const k = Math.min(innerWidth / 1920, innerHeight / 1080); stage.style.transform = 'scale(' + k + ') translate(-50%, -50%)'; };
+  addEventListener('keydown', e => { if (['ArrowRight', 'PageDown', ' '].includes(e.key)) go(1); if (['ArrowLeft', 'PageUp'].includes(e.key)) go(-1); if (e.key === 'Home') go(-99); if (e.key === 'End') go(99); });
+  addEventListener('click', e => go(e.clientX < innerWidth / 3 ? -1 : 1));
+  addEventListener('resize', fit); fit(); show();
+</script>
+</body>
+</html>
