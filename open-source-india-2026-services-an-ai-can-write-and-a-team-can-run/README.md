@@ -8,6 +8,10 @@ when the framework owns those parts, so the assistant writes less and the team r
 
 **GoFr: An Opinionated Go Framework for accelerated microservice development.**
 
+**Live slides:** [https://osi-2026-gofr-deck.zopcloud.zop.dev](https://osi-2026-gofr-deck.zopcloud.zop.dev)
+
+[![Deploy to ZopCloud](https://zop.dev/deploytozopcloud-inkhard.svg)](https://zop.dev/zopday/app/deploy?repo=https://github.com/aryanmehrotra/talks&port=8080&app=zopcloud)
+
 ---
 
 ## Speaker
@@ -32,6 +36,9 @@ plus the `brand/` assets, with no build step.
 | `→` `Space` `PageDown`, or click the right two-thirds | next slide |
 | `←` `PageUp`, or click the left third | previous slide |
 | `Home` / `End` | first / last slide |
+
+The repository root carries a `Dockerfile` that serves these slides with nginx on port 8080;
+the button above deploys it to your own ZopCloud account.
 
 Print to PDF from the browser for a 1920x1080 page per slide. Speaker notes are in each
 slide's `<aside>` element in the source.
