@@ -46,16 +46,17 @@ slide's `<aside>` element in the source.
 | # | Slide | What it carries |
 |---|-------|-----------------|
 | 1 | Cover | Services an AI can write and a team can run |
-| 2 | AI already writes the code | 75% at Google, 84% of developers, 53% of Go developers daily |
-| 3 | The bill arrives after the merge | 56% pass security tests, 5x review time, 3x incidents per PR |
-| 4 | The idea | Put the production parts in the framework |
-| 5 | One handler shape, the rest included | 13 lines of code, and what `gofr.New()` adds |
-| 6 | The LLM is one more datasource | `app.AddLLM`, traced, metered, health-checked |
-| 7 | One line makes your API agent tools | `app.EnableMCP()` and its safety defaults |
-| 8 | Live demo | One service, three requests |
-| 9 | What a team gets back | Review load, incidents, AI spend, integrations, lock-in |
-| 10 | Everything in the box | The feature map to take away |
-| 11 | Start tonight | Where to begin |
+| 2 | What is GoFr? | Opinionated, batteries included, open source |
+| 3 | AI already writes the code | 75% at Google, 84% of developers, 53% of Go developers daily |
+| 4 | The bill arrives after the merge | 56% pass security tests, 5x review time, 3x incidents per PR |
+| 5 | The idea | Put the production parts in the framework |
+| 6 | One handler shape, the rest included | 13 lines of code, and what `gofr.New()` adds |
+| 7 | The LLM is one more datasource | `app.AddLLM`, traced, metered, health-checked |
+| 8 | One line makes your API agent tools | `app.EnableMCP()` and its safety defaults |
+| 9 | Live demo | One service, three requests |
+| 10 | What a team gets back | Review load, incidents, AI spend, integrations, lock-in |
+| 11 | Everything in the box | The feature map to take away |
+| 12 | Start tonight | Where to begin, with a QR code for gofr.dev |
 
 ---
 
