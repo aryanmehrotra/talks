@@ -67,7 +67,7 @@ from the GoFr repository: one inventory endpoint, one `/ask` endpoint, `app.AddL
 
 ```bash
 curl localhost:8000/inventory/A1                          # a trace and a metric appear
-curl -X POST localhost:8000/ask -d '{"prompt":"..."}'     # the LLM call is a span, tokens counted
+curl localhost:8000/ask --json '{"prompt":"..."}'         # the LLM call is a span, tokens counted
 # then point an MCP client at localhost:8200              # the agent finds /inventory as a tool
 ```
 
