@@ -36,6 +36,7 @@ plus the `brand/` assets, with no build step.
 | `→` `Space` `PageDown`, or click the right two-thirds | next slide |
 | `←` `PageUp`, or click the left third | previous slide |
 | `Home` / `End` | first / last slide |
+| `F` | enter or leave full screen |
 
 The repository root carries a `Dockerfile` that serves these slides with nginx on port 8080;
 the button above deploys it to your own ZopCloud account.

@@ -451,13 +451,14 @@
 </div>
 <div id="n"></div>
 <script>
-  // Arrow keys, space, PageUp/PageDown or a click move between slides; the URL hash keeps your place.
+  // Arrow keys, space, PageUp/PageDown or a click move between slides; F toggles full screen; the URL hash keeps your place.
   const slides = [...document.querySelectorAll('section')], stage = document.getElementById('stage'), n = document.getElementById('n');
   let i = Math.min(Math.max((parseInt(location.hash.slice(1), 10) || 1) - 1, 0), slides.length - 1);
   const show = () => { slides.forEach((s, k) => s.classList.toggle('on', k === i)); n.textContent = (i + 1) + ' / ' + slides.length; history.replaceState(null, '', '#' + (i + 1)); };
   const go = d => { i = Math.min(Math.max(i + d, 0), slides.length - 1); show(); };
+  const fullscreen = () => { const d = document; if (d.fullscreenElement || d.webkitFullscreenElement) { (d.exitFullscreen || d.webkitExitFullscreen).call(d); } else { const el = d.documentElement; (el.requestFullscreen || el.webkitRequestFullscreen).call(el); } };
   const fit = () => { const k = Math.min(innerWidth / 1920, innerHeight / 1080); stage.style.transform = 'scale(' + k + ') translate(-50%, -50%)'; };
-  addEventListener('keydown', e => { if (['ArrowRight', 'PageDown', ' '].includes(e.key)) go(1); if (['ArrowLeft', 'PageUp'].includes(e.key)) go(-1); if (e.key === 'Home') go(-99); if (e.key === 'End') go(99); });
+  addEventListener('keydown', e => { if (['ArrowRight', 'PageDown', ' '].includes(e.key)) go(1); if (['ArrowLeft', 'PageUp'].includes(e.key)) go(-1); if (e.key === 'Home') go(-99); if (e.key === 'End') go(99); if (e.key === 'f' || e.key === 'F') fullscreen(); });
   addEventListener('click', e => go(e.clientX < innerWidth / 3 ? -1 : 1));
   addEventListener('resize', fit); fit(); show();
 </script>
