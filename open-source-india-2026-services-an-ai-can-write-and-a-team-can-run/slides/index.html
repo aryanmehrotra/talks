@@ -274,34 +274,89 @@
 </div>
 <aside>The other direction: agents calling your service. MCP is the open protocol for that, now governed under the Linux Foundation, with AWS, Anthropic, Google, Microsoft and OpenAI as members. In GoFr it is one line. The defaults are the safe ones: read-only routes, loopback, port 8200, and calls go through the same router so auth middleware still applies. It implements tools only (initialize, tools/list, tools/call), over Streamable HTTP.</aside>
 </section>
-<section id="demo" data-transition="fade" style="background:#0A101F;color:#f8fafc;font-family:'Inter', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<section id="demo" data-transition="fade" style="background:#0A101F;color:#f8fafc;font-family:'Inter', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;justify-content:space-between;gap:36px">
 <img src="./brand/blur-indigo.png" alt="" style="position:absolute;right:0px;bottom:0px;width:860px;height:860px;object-fit:cover;opacity:0.28">
 <div style="display:flex;flex-direction:column;gap:16px">
-<p style="font-family:'Lexend GoFr', 'Inter', Arial, sans-serif;font-size:24px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:#38bdf8">Live demo</p>
-<h2 style="font-family:'Lexend GoFr', 'Inter', Arial, sans-serif;font-size:72px;font-weight:700;line-height:1.1;letter-spacing:-1.8px">One service, three requests</h2>
+<p style="font-family:'Lexend GoFr', 'Inter', Arial, sans-serif;font-size:24px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:#38bdf8">From a real run, 1 of 3</p>
+<h2 style="font-family:'Lexend GoFr', 'Inter', Arial, sans-serif;font-size:72px;font-weight:700;line-height:1.1;letter-spacing:-1.8px">One request, already observed</h2>
 </div>
-<div style="display:flex;flex-direction:column;gap:32px">
-<div style="display:flex;align-items:center;gap:36px;background:#0f172a;border:1px solid #334155;border-radius:20px;padding:48px 40px">
-<p style="font-family:'Lexend GoFr', 'Inter', Arial, sans-serif;font-size:44px;font-weight:600;width:48px;color:#38bdf8">1</p>
-<p style="font-family:monospace;font-size:26px;line-height:1.4;width:840px;white-space:nowrap;color:#7dd3fc">curl localhost:8000/inventory/A1</p>
-<p style="flex:1;font-size:30px;line-height:1.35;color:#cbd5e1">A trace and a metric appear. Nobody asked for them.</p>
+<div style="display:flex;flex-direction:column;background:#0f172a;border:1px solid #334155;border-radius:20px;padding:32px 40px">
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#7dd3fc">$ curl localhost:8000/inventory/A1</p>
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#f8fafc">{"data":{"in_stock":12,"sku":"A1"}}</p>
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#94a3b8">&#160;</p>
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#94a3b8"># the service wrote this log line by itself</p>
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#f8fafc">{"level":"INFO","message":{"trace_id":"e0a84a3b145661fc58637e900157d339", ... "method":"GET",</p>
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#f8fafc">&#160;&#160;"uri":"/inventory/A1","response":200,"response_time":109},"gofrVersion":"v1.62.0"}</p>
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#94a3b8">&#160;</p>
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#7dd3fc">$ curl localhost:8000/.well-known/health</p>
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#f8fafc">{"data":{"name":"inventory-service","status":"UP"}}</p>
 </div>
-<div style="display:flex;align-items:center;gap:36px;background:#0f172a;border:1px solid #334155;border-radius:20px;padding:48px 40px">
-<p style="font-family:'Lexend GoFr', 'Inter', Arial, sans-serif;font-size:44px;font-weight:600;width:48px;color:#38bdf8">2</p>
-<p style="font-family:monospace;font-size:26px;line-height:1.4;width:840px;white-space:nowrap;color:#7dd3fc">curl localhost:8000/ask --json '{"prompt":"..."}'</p>
-<p style="flex:1;font-size:30px;line-height:1.35;color:#cbd5e1">The LLM call is a span in the same trace, tokens counted.</p>
-</div>
-<div style="display:flex;align-items:center;gap:36px;background:#0f172a;border:1px solid #334155;border-radius:20px;padding:48px 40px">
-<p style="font-family:'Lexend GoFr', 'Inter', Arial, sans-serif;font-size:44px;font-weight:600;width:48px;color:#38bdf8">3</p>
-<p style="font-family:monospace;font-size:26px;line-height:1.4;width:840px;white-space:nowrap;color:#7dd3fc">MCP client -> localhost:8200</p>
-<p style="flex:1;font-size:30px;line-height:1.35;color:#cbd5e1">The agent finds /inventory as a tool and calls it.</p>
-</div>
+<div style="display:flex;gap:32px">
+<p style="flex:1;font-size:26px;line-height:1.35;color:#cbd5e1"><b>A trace ID</b> on every request, without a line of tracing code.</p>
+<p style="flex:1;font-size:26px;line-height:1.35;color:#cbd5e1"><b>Duration and status</b> in a structured log.</p>
+<p style="flex:1;font-size:26px;line-height:1.35;color:#cbd5e1"><b>A health endpoint</b> that nobody wrote.</p>
 </div>
 <div style="position:absolute;left:128px;right:128px;bottom:64px;display:flex;justify-content:space-between;align-items:center">
-<p style="font-size:24px;color:#94a3b8">Code: examples/using-ai in github.com/gofr-dev/gofr</p>
+<p style="font-size:24px;color:#94a3b8">Captured output: examples/using-ai on GoFr v1.62.0. "..." marks fields left out.</p>
 <div style="display:flex;align-items:center;gap:18px"><p style="font-size:30px;font-weight:700;line-height:1.2;color:#f8fafc"><i><span style="color:#38bdf8">Go</span></i> Fr</p></div>
 </div>
-<aside>Two minutes, no more. The service is examples/using-ai from the GoFr repo: 132 lines, one inventory endpoint, one /ask endpoint, AddLLM and EnableMCP. Have the trace UI and the terminal side by side before walking on. Step 1 shows default observability. Step 2 shows the model call inside the same trace. Step 3 shows an agent discovering and calling the GET route. Fallback if the network fails: a recorded run of the same three steps.</aside>
+<aside>Forty seconds. This is captured output from a real run of the using-ai example, not a mock-up. One curl call. Point at the trace_id in the log line: the service wrote that itself. Point at response_time and the status. Then the health endpoint. Say: I wrote none of this. The log line is shortened; the three dots mark the fields I removed.</aside>
+</section>
+<section id="demo2" data-transition="fade" style="background:#0A101F;color:#f8fafc;font-family:'Inter', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;justify-content:space-between;gap:36px">
+<img src="./brand/blur-indigo.png" alt="" style="position:absolute;right:0px;bottom:0px;width:860px;height:860px;object-fit:cover;opacity:0.28">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'Lexend GoFr', 'Inter', Arial, sans-serif;font-size:24px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:#38bdf8">From a real run, 2 of 3</p>
+<h2 style="font-family:'Lexend GoFr', 'Inter', Arial, sans-serif;font-size:72px;font-weight:700;line-height:1.1;letter-spacing:-1.8px">The model call, counted in tokens</h2>
+</div>
+<div style="display:flex;flex-direction:column;background:#0f172a;border:1px solid #334155;border-radius:20px;padding:32px 40px">
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#7dd3fc">$ curl localhost:8000/ask --json '{"prompt":"In one short sentence, what is a microservice?"}'</p>
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#f8fafc">{"data":{"Content":"A microservice is a software application that consists of small, independent</p>
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#f8fafc">&#160;&#160;services that can be developed and deployed independently.", ...</p>
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#f8fafc">&#160;&#160;"Usage":{"PromptTokens":20,"CompletionTokens":24,"TotalTokens":44, ...},"Model":"gemma3:270m"}}</p>
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#94a3b8">&#160;</p>
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#7dd3fc">$ curl -s localhost:2121/metrics | grep app_llm</p>
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#f8fafc">app_llm_request_count{model="gemma3:270m",operation="generate",provider="ollama",status="success", ...} 1</p>
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#f8fafc">app_llm_tokens_per_request_sum{... token_type="prompt"} 20</p>
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#f8fafc">app_llm_tokens_per_request_sum{... token_type="completion"} 24</p>
+</div>
+<div style="display:flex;gap:32px">
+<p style="flex:1;font-size:26px;line-height:1.35;color:#cbd5e1"><b>Token counts</b> come back with the answer: 20 in, 24 out.</p>
+<p style="flex:1;font-size:26px;line-height:1.35;color:#cbd5e1"><b>The same numbers</b> are Prometheus metrics, ready for an alert.</p>
+<p style="flex:1;font-size:26px;line-height:1.35;color:#cbd5e1"><b>Labelled</b> by provider and model, so you can see where spend goes.</p>
+</div>
+<div style="position:absolute;left:128px;right:128px;bottom:64px;display:flex;justify-content:space-between;align-items:center">
+<p style="font-size:24px;color:#94a3b8">Captured output. The model ran locally through Ollama, so no API key was needed.</p>
+<div style="display:flex;align-items:center;gap:18px"><p style="font-size:30px;font-weight:700;line-height:1.2;color:#f8fafc"><i><span style="color:#38bdf8">Go</span></i> Fr</p></div>
+</div>
+<aside>Forty seconds. Same service, now the /ask route, which calls the model. For this capture the provider was switched from Groq to a small local model through Ollama; that is one changed line. Point at Usage in the response: 20 prompt tokens, 24 completion tokens. Then the metrics: the same 20 and 24, as Prometheus metrics, labelled with provider and model. Say: I can alert on this before the invoice arrives.</aside>
+</section>
+<section id="demo3" data-transition="fade" style="background:#0A101F;color:#f8fafc;font-family:'Inter', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;justify-content:space-between;gap:36px">
+<img src="./brand/blur-indigo.png" alt="" style="position:absolute;right:0px;bottom:0px;width:860px;height:860px;object-fit:cover;opacity:0.28">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'Lexend GoFr', 'Inter', Arial, sans-serif;font-size:24px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:#38bdf8">From a real run, 3 of 3</p>
+<h2 style="font-family:'Lexend GoFr', 'Inter', Arial, sans-serif;font-size:72px;font-weight:700;line-height:1.1;letter-spacing:-1.8px">An agent finds the tool, and only that</h2>
+</div>
+<div style="display:flex;flex-direction:column;background:#0f172a;border:1px solid #334155;border-radius:20px;padding:32px 40px">
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#7dd3fc">$ curl localhost:8200 --json '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'</p>
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#f8fafc">{"result":{"tools":[{"name":"get_inventory_sku","description":"GET /inventory/{sku}", ...</p>
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#f8fafc">&#160;&#160;"annotations":{"readOnlyHint":true}}]}}</p>
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#94a3b8">&#160;</p>
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#7dd3fc">$ curl localhost:8200 --json '{... "method":"tools/call","params":{"name":"get_inventory_sku", ...}}'</p>
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#f8fafc">{"result":{"content":[{"type":"text","text":"{\"data\":{\"in_stock\":12,\"sku\":\"A1\"}}"}],"isError":false}}</p>
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#94a3b8">&#160;</p>
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#7dd3fc">$ curl localhost:8200 --json '{... "method":"tools/call","params":{"name":"post_ask","arguments":{}}}'</p>
+<p style="font-family:monospace;font-size:24px;line-height:1.5;white-space:nowrap;color:#f59e0b">{"error":{"code":-32601,"message":"unknown tool"}}</p>
+</div>
+<div style="display:flex;gap:32px">
+<p style="flex:1;font-size:26px;line-height:1.35;color:#cbd5e1"><b>Discovered:</b> the GET route appears as a tool, marked read-only.</p>
+<p style="flex:1;font-size:26px;line-height:1.35;color:#cbd5e1"><b>Called:</b> the agent gets the same answer curl got.</p>
+<p style="flex:1;font-size:26px;line-height:1.35;color:#cbd5e1"><b>Refused:</b> the POST route is not a tool, so the call fails.</p>
+</div>
+<div style="position:absolute;left:128px;right:128px;bottom:64px;display:flex;justify-content:space-between;align-items:center">
+<p style="font-size:24px;color:#94a3b8">Captured output from the MCP server that app.EnableMCP() starts on port 8200.</p>
+<div style="display:flex;align-items:center;gap:18px"><p style="font-size:30px;font-weight:700;line-height:1.2;color:#f8fafc"><i><span style="color:#38bdf8">Go</span></i> Fr</p></div>
+</div>
+<aside>Forty seconds. This is what an agent sees on port 8200. First call: which tools do you have? One tool, the GET inventory route, marked read-only. Second call: the agent calls it and gets the same inventory answer. Third call, in amber: the agent tries the POST route. The server says unknown tool. An agent cannot change state through this door. I used curl here so you can see the raw protocol; any MCP client sends the same messages.</aside>
 </section>
 <section id="company" data-transition="fade" style="background:#0f172a;color:#f8fafc;font-family:'Inter', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:44px">
 <img src="./brand/blur-cyan.png" alt="" style="position:absolute;left:0px;top:0px;width:900px;height:900px;object-fit:cover;opacity:0.3">

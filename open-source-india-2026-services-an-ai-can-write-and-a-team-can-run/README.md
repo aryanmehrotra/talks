@@ -3,7 +3,7 @@
 ## GoFr in a year when AI writes most of the code
 
 AI assistants write a Go service in seconds and leave out the production parts: tracing,
-metrics, health checks, retries, graceful shutdown. This ten-minute talk shows what changes
+metrics, health checks, retries, graceful shutdown. This short talk shows what changes
 when the framework owns those parts, so the assistant writes less and the team reviews less.
 
 **GoFr: An Opinionated Go Framework for accelerated microservice development.**
@@ -53,16 +53,18 @@ slide's `<aside>` element in the source.
 | 6 | One handler shape, the rest included | 13 lines of code, and what `gofr.New()` adds |
 | 7 | The LLM is one more datasource | `app.AddLLM`, traced, metered, health-checked |
 | 8 | One line makes your API agent tools | `app.EnableMCP()` and its safety defaults |
-| 9 | Live demo | One service, three requests |
-| 10 | What a team gets back | Review load, incidents, AI spend, integrations, lock-in |
-| 11 | Everything in the box | The feature map to take away |
-| 12 | Start tonight | Where to begin, with QR codes for gofr.dev and LinkedIn |
+| 9 | One request, already observed | Captured output: a request, its log line with a trace ID, the health endpoint |
+| 10 | The model call, counted in tokens | Captured output: an LLM call and its token metrics |
+| 11 | An agent finds the tool, and only that | Captured output: MCP `tools/list`, `tools/call`, and a refused write |
+| 12 | What a team gets back | Review load, incidents, AI spend, integrations, lock-in |
+| 13 | Everything in the box | The feature map to take away |
+| 14 | Start tonight | Where to begin, with QR codes for gofr.dev and LinkedIn |
 
 ---
 
-## The demo
+## The captured run
 
-The service on stage is [`examples/using-ai`](https://github.com/gofr-dev/gofr/tree/main/examples/using-ai)
+Slides 9 to 11 show output captured from a real run. The service is [`examples/using-ai`](https://github.com/gofr-dev/gofr/tree/main/examples/using-ai)
 from the GoFr repository: one inventory endpoint, one `/ask` endpoint, `app.AddLLM` and
 `app.EnableMCP`.
 
@@ -73,6 +75,9 @@ curl localhost:8000/ask --json '{"prompt":"..."}'         # the LLM call is a sp
 ```
 
 Metrics are at `localhost:2121/metrics`. The LLM key is read from `LLM_API_KEY`.
+
+For the capture on the slides, the provider was changed to a local model (`llm.Ollama`, `gemma3:270m`),
+so no API key was needed.
 
 ---
 
