@@ -56,7 +56,7 @@ slide's `<aside>` element in the source.
 | 9 | Live demo | One service, three requests |
 | 10 | What a team gets back | Review load, incidents, AI spend, integrations, lock-in |
 | 11 | Everything in the box | The feature map to take away |
-| 12 | Start tonight | Where to begin, with a QR code for gofr.dev |
+| 12 | Start tonight | Where to begin, with QR codes for gofr.dev and LinkedIn |
 
 ---
 
